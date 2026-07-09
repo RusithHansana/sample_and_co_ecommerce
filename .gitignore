@@ -1,0 +1,9 @@
+# bmad files
+_bmad
+_bmad-*
+.agent
+.agents
+.github
+
+# misc
+/docs
