@@ -1,46 +1,46 @@
-services:
-  db:
-    image: postgres:17-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: sample_and_co_dev
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+  services:
+    db:
+      image: postgres:17-alpine
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: sample_and_co_dev
+      volumes:
+        - db_data:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
 
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./server:/app
-      - /app/node_modules
-    env_file:
-      - .env.development
-    depends_on:
-      db:
-        condition: service_healthy
+    server:
+      build:
+        context: ./server
+        dockerfile: Dockerfile
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./server:/app:Z
+        - /app/node_modules
+      env_file:
+        - .env.development
+      depends_on:
+        db:
+          condition: service_healthy
 
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./client:/app
-      - /app/node-modules
-    env_file:
-      - .env.development
+    client:
+      build:
+        context: ./client
+        dockerfile: Dockerfile
+      ports:
+        - "5173:5173"
+      volumes:
+        - ./client:/app:Z
+        - /app/node_modules
+      env_file:
+        - .env.development
 
-volumes:
-  db_data:
+  volumes:
+    db_data:
