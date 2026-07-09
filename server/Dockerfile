@@ -11,7 +11,7 @@ RUN npm install
 
 # Now copy the rest of the source. Changes here won't invalidate
 # the npm install layer above.
-COPY ..
+COPY . .
 
 EXPOSE 3000
 
