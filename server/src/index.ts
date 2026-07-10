@@ -8,6 +8,10 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+        return next(err);
+    }
+    
     console.error(err);
     res.status(500).send({ error: { message: err.message}});
 });
