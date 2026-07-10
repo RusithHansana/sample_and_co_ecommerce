@@ -3,5 +3,5 @@
         "src"
     ],
     "ext": "ts",
-    "exec": "tsx ./src/index.ts"
+    "exec": "tsx ./src/app.ts"
 }
