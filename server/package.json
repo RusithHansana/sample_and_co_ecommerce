@@ -6,6 +6,9 @@
   "author": "",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "nodemon"
   },
