@@ -1,3 +1,9 @@
+# environment
+.env*
+
+# node modules
+node_modules
+
 # bmad files
 _bmad
 _bmad-*
