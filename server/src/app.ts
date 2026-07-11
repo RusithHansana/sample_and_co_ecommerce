@@ -1,7 +1,9 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express"
 
 const app: Express = express();
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+const parsedPort = Number(process.env.PORT);
+const PORT = process.env.PORT && !isNaN(parsedPort) ? parsedPort : 3000; 
 
 app.get('/api/health', (req: Request, res: Response) => {
     res.send({data: {status: "ok"}});
