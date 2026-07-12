@@ -11,17 +11,25 @@ import { notFoundHandler } from "./middleware/not-found-handler.ts";
 
 const app: Express = express();
 
+app.use(requestLogger);
 app.use(helmet());
 app.use(cors({ origin: config.ALLOWED_ORIGIN, credentials: true}));
-app.use(requestLogger);
+app.use(express.json());
+app.use(express.urlencoded());
  
 app.get('/api/health', (req: Request, res: Response) => {
     res.send({data: {status: "ok"}});
 });
 
+app.use("/api/auth", express.Router());
+app.use("/api/products", express.Router());
+app.use("/api/cart", express.Router());
+app.use("/api/checkout", express.Router());
+app.use("/api/orders", express.Router());
+app.use("/api/reviews", express.Router());
+app.use("/api/admin", express.Router())
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(config.PORT, () => {
-    logger.info(`The Server is running on port: ${config.PORT}`);
-});
+export default app;
