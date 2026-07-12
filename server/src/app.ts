@@ -1,4 +1,7 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
+import helmet from "helmet";
+import cors from "cors";
+
 
 import { config } from "./config/index.ts";
 import logger from "./lib/logger.ts";
@@ -8,6 +11,8 @@ import { notFoundHandler } from "./middleware/not-found-handler.ts";
 
 const app: Express = express();
 
+app.use(helmet());
+app.use(cors({ origin: config.ALLOWED_ORIGIN, credentials: true}));
 app.use(requestLogger);
  
 app.get('/api/health', (req: Request, res: Response) => {
