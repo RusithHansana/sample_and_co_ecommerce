@@ -1,8 +1,6 @@
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
-import dotenv from "dotenv";
 
 const app: Express = express();
-dotenv.config();
 
 const parsedPort = Number(process.env.PORT);
 const PORT = process.env.PORT && !isNaN(parsedPort) ? parsedPort : 3000; 
