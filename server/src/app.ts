@@ -2,8 +2,11 @@ import express, { type Express, type Request, type Response, type NextFunction }
 
 import { config } from "./config/index.ts";
 import logger from "./lib/logger.ts";
+import { requestLogger } from "./middleware/request-logger.ts";
 
 const app: Express = express();
+
+app.use(requestLogger);
  
 app.get('/api/health', (req: Request, res: Response) => {
     res.send({data: {status: "ok"}});
