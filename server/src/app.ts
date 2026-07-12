@@ -3,6 +3,8 @@ import express, { type Express, type Request, type Response, type NextFunction }
 import { config } from "./config/index.ts";
 import logger from "./lib/logger.ts";
 import { requestLogger } from "./middleware/request-logger.ts";
+import { errorHandler } from "./middleware/error-handler.ts";
+import { notFoundHandler } from "./middleware/not-found-handler.ts";
 
 const app: Express = express();
 
@@ -12,13 +14,8 @@ app.get('/api/health', (req: Request, res: Response) => {
     res.send({data: {status: "ok"}});
 });
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (res.headersSent) {
-        return next(err);
-    }
-    logger.error(err);
-    res.status(500).send({ error: { message: err.message}});
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(config.PORT, () => {
     logger.info(`The Server is running on port: ${config.PORT}`);
