@@ -1,25 +1,53 @@
-import express, { type Express, type Request, type Response, type NextFunction } from "express";
-import dotenv from "dotenv";
+import express, { type Express, type Request, type Response } from "express";
+import helmet from "helmet";
+import cors from "cors";
+
+
+import { config } from "./config/index.js";
+import { requestLogger } from "./middleware/request-logger.js";
+import { errorHandler } from "./middleware/error-handler.js";
+import { notFoundHandler } from "./middleware/not-found-handler.js";
+import { limiter } from "./middleware/rate-limiter.js";
+import { ForbiddenError } from "./types/app-error.js";
+
+import type { ApiSuccessResponse } from "./types/api-response.js";
 
 const app: Express = express();
-dotenv.config();
 
-const parsedPort = Number(process.env.PORT);
-const PORT = process.env.PORT && !isNaN(parsedPort) ? parsedPort : 3000; 
+// for getting the actual ip coming from "X-Forwarded-For" when using a reverse proxy.
+app.set("trust proxy", 1);
 
-app.get('/api/health', (req: Request, res: Response) => {
-    res.send({data: {status: "ok"}});
+app.use(requestLogger);
+app.use(helmet());
+
+app.use(cors({ 
+    origin: (origin, callback) => {
+        if(!origin || config.ALLOWED_ORIGIN.includes(origin)){
+            return callback(null, true);
+        }
+
+        return callback(new ForbiddenError(`Origin: ${origin} is not allowed by CORS`))
+    }, 
+    credentials: true
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
+ 
+app.get("/api/health", (req: Request, res: Response) => {
+    const body: ApiSuccessResponse<{status: string}> = { data: { status: "ok"} };
+    res.status(200).json(body);
 });
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    if (res.headersSent) {
-        return next(err);
-    }
-    
-    console.error(err);
-    res.status(500).send({ error: { message: err.message}});
-});
+app.use("/api/auth",limiter, express.Router());
+app.use("/api/products", express.Router());
+app.use("/api/cart", express.Router());
+app.use("/api/checkout", express.Router());
+app.use("/api/orders", express.Router());
+app.use("/api/reviews", express.Router());
+app.use("/api/admin", express.Router());
 
-app.listen(PORT, () => {
-    console.log(`server is running on port: ${PORT}`);
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+export default app;
