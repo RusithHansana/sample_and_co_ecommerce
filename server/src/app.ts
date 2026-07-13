@@ -4,7 +4,6 @@ import cors from "cors";
 
 
 import { config } from "./config/index.ts";
-import logger from "./lib/logger.ts";
 import { requestLogger } from "./middleware/request-logger.ts";
 import { errorHandler } from "./middleware/error-handler.ts";
 import { notFoundHandler } from "./middleware/not-found-handler.ts";
