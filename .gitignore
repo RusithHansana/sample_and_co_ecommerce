@@ -13,3 +13,6 @@ _bmad-*
 
 # misc
 /docs
+
+# prisma generated files
+/server/src/generated/prisma
