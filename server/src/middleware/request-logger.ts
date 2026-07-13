@@ -6,7 +6,7 @@ import logger from "../lib/logger.js";
 export const requestLogger = pinoHttp({
     logger,
     genReqId: (req, res) => {
-        const existingId = req.headers["X-Request-Id"];
+        const existingId = req.headers["x-request-id"];
 
         if (existingId) return existingId as string;
 
