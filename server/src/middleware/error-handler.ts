@@ -1,7 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 
-import logger from "../lib/logger.js";
 import { AppError, ValidationError } from "../types/app-error.js";
+
 import type { ApiErrorResponse } from "../types/api-response.js";
 
 
