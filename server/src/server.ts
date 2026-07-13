@@ -21,8 +21,17 @@ server.on("error", (err: NodeJS.ErrnoException) => {
 // Gracefully shutting down server
 // with 10s of grace period for any unfinished requests to complete
 // triggers when "SIGTERM" and "SIGINT"
+
+let isShuttingDown = false;
+
 function gracefulShutDown(signal: string) {
-    logger.info(`Receieved ${signal}. Server is shutting down...`);
+    if (isShuttingDown) {
+        logger.info(`${signal} received again — shutdown already in progress.`);
+        return;
+    }
+    isShuttingDown = true;
+
+    logger.info(`Received ${signal}. Server is shutting down...`);
 
     server.close(async (err)=> {
         if (err){
@@ -40,6 +49,10 @@ function gracefulShutDown(signal: string) {
         logger.info("Cleanup Complete. Exiting process...");
         process.exit(0);
     });
+
+    // Force-close any idle keep-alive sockets so server.close() isn't
+    // stuck waiting on connections that aren't doing any real work.
+    server.closeIdleConnections();
 
     // grace period of 10s if the server hangs.
     setTimeout(() =>{
