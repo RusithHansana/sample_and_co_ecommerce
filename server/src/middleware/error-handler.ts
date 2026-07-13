@@ -19,12 +19,12 @@ export function errorHandler (err: Error, req: Request, res: Response, next: Nex
             }
         };
 
-        logger.warn({ err}, "Application Error Occured");
+        req.log.error({ err}, "Application Error Occured");
     
         return res.status(err.statusCode).json(body);
     }
 
-    logger.warn({err}, "Unknown Error Occured.");
+    req.log.error({err}, "Unknown Error Occurred.");
 
     const body: ApiErrorResponse = {
         error: {
