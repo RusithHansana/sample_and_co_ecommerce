@@ -19,7 +19,16 @@ app.use("/api/reviews", express.Router());
 app.use("/api/admin", express.Router())
 app.use(requestLogger);
 app.use(helmet());
-app.use(cors({ origin: config.ALLOWED_ORIGIN, credentials: true}));
+app.use(cors({ 
+    origin: (origin, callback) => {
+        if(!origin || config.ALLOWED_ORIGIN.includes(origin)){
+            return callback(null, true);
+        }
+
+        return callback(new Error(`Origin: ${origin} is not allowed by CORS`))
+    }, 
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
  

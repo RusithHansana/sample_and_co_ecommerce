@@ -6,7 +6,7 @@ interface Config {
     STRIPE_WEBHOOK_SECRET: string;
     CLOUDINARY_URL: string;
     RESEND_API_KEY: string;
-    ALLOWED_ORIGIN: string;
+    ALLOWED_ORIGIN: string[];
     PORT: number;
     NODE_ENV: "development" | "production" | "test";
 }
@@ -37,6 +37,20 @@ function getPort(fallback: number): number {
     return parsedPort;
 }
 
+function getAllowedOrigins(): string[] {
+    const allowedOrigins = (process.env["ALLOWED_ORIGIN"] ?? "").split(",").map((origin) => origin.trim()).filter(Boolean); // drop empty strings comming from trailling commas etc.
+
+    if(allowedOrigins.length === 0) {
+        throw new Error("Env variable ALLOWED_ORIGIN is required");
+    }
+
+    if(allowedOrigins.includes("*")){
+        throw new Error(`Invalid cors configuration: wildcard origin "*" is not allowed when credentials are required`)
+    }
+
+    return allowedOrigins
+}
+
 export const config: Config = {
     DATABASE_URL: getEnv("DATABASE_URL"),
     JWT_SECRET: getEnv("JWT_SECRET"),
@@ -45,7 +59,7 @@ export const config: Config = {
     STRIPE_WEBHOOK_SECRET: getEnv('STRIPE_WEBHOOK_SECRET'),
     CLOUDINARY_URL: getEnv('CLOUDINARY_URL'),
     RESEND_API_KEY: getEnv('RESEND_API_KEY'),
-    ALLOWED_ORIGIN: getEnv('ALLOWED_ORIGIN'),
+    ALLOWED_ORIGIN: getAllowedOrigins(),
     PORT: getPort(3000),
     NODE_ENV: getEnv('NODE_ENV') as Config['NODE_ENV'],
 }
