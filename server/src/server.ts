@@ -1,6 +1,8 @@
 import app from "./app.js";
-import { config } from "./config/index.js";
 import logger from "./lib/logger.js";
+import prisma, { pool} from "./lib/prisma.js";
+import { config } from "./config/index.js";
+
 
 const server = app.listen(config.PORT,() => {
     logger.info(`Server is running on port:${config.PORT} `)
@@ -41,10 +43,10 @@ function gracefulShutDown(signal: string) {
 
         logger.info("Server shutdown complete");
 
-        // TODO: Close database connection pool here once a DB client is added
-        // e.g. await db.end() / await pool.end() / await prisma.$disconnect()
         // Ensures no in-flight queries are abandoned and connections are
         // released cleanly back to Postgres before the process exits.
+        await prisma.$disconnect();
+        await pool.end();
 
         logger.info("Cleanup Complete. Exiting process...");
         process.exit(0);
