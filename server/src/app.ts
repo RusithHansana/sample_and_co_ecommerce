@@ -8,9 +8,9 @@ import { requestLogger } from "./middleware/request-logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFoundHandler } from "./middleware/not-found-handler.js";
 import { limiter } from "./middleware/rate-limiter.js";
-import { ForbiddenError } from "./types/app-error.ts";
+import { ForbiddenError } from "./types/app-error.js";
 
-import type { ApiSuccessResponse } from "./types/api-response.ts";
+import type { ApiSuccessResponse } from "./types/api-response.js";
 
 const app: Express = express();
 
