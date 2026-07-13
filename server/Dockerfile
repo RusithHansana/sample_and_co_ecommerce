@@ -7,6 +7,12 @@ WORKDIR /app
 # not on every source code edit.
 COPY package.json package-lock.json ./
 
+# Copying the prisma schema and config ealier
+# so when `npx prisma generate` runs for the first time
+# it can access the schema and config
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+
 RUN npm install
 
 # Generate the prisma client
