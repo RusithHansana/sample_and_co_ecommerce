@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
 
-import logger from "../lib/logger.ts";
-import { AppError, ValidationError } from "../types/app-error.ts";
-import type { ApiErrorResponse } from "../types/api-response.ts";
+import logger from "../lib/logger.js";
+import { AppError, ValidationError } from "../types/app-error.js";
+import type { ApiErrorResponse } from "../types/api-response.js";
 
 
 export function errorHandler (err: Error, req: Request, res: Response, next: NextFunction) {

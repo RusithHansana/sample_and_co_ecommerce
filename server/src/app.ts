@@ -3,11 +3,11 @@ import helmet from "helmet";
 import cors from "cors";
 
 
-import { config } from "./config/index.ts";
-import { requestLogger } from "./middleware/request-logger.ts";
-import { errorHandler } from "./middleware/error-handler.ts";
-import { notFoundHandler } from "./middleware/not-found-handler.ts";
-import { limiter } from "./middleware/rate-limiter.ts";
+import { config } from "./config/index.js";
+import { requestLogger } from "./middleware/request-logger.js";
+import { errorHandler } from "./middleware/error-handler.js";
+import { notFoundHandler } from "./middleware/not-found-handler.js";
+import { limiter } from "./middleware/rate-limiter.js";
 
 const app: Express = express();
 app.use("/api/auth", express.Router());
