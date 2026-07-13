@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response, type NextFunction } from "express";
+import express, { type Express, type Request, type Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
 
@@ -8,6 +8,8 @@ import { requestLogger } from "./middleware/request-logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFoundHandler } from "./middleware/not-found-handler.js";
 import { limiter } from "./middleware/rate-limiter.js";
+import { ForbiddenError } from "./types/app-error.ts";
+
 import type { ApiSuccessResponse } from "./types/api-response.ts";
 
 const app: Express = express();
@@ -24,7 +26,7 @@ app.use(cors({
             return callback(null, true);
         }
 
-        return callback(new Error(`Origin: ${origin} is not allowed by CORS`))
+        return callback(new ForbiddenError(`Origin: ${origin} is not allowed by CORS`))
     }, 
     credentials: true
 }));
