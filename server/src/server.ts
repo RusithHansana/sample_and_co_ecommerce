@@ -45,7 +45,7 @@ function gracefulShutDown(signal: string) {
     setTimeout(() =>{
         logger.error("Forced shutdown.");
         process.exit(1);
-    }, 10_000).unref();
+    }, 10_000).unref(); // unref() tells node to allow the process to exit earlier if the server shutdown normally. if not this timeout will be triggered
 }
 
 process.on("SIGTERM", () => gracefulShutDown("SIGTERM"));
