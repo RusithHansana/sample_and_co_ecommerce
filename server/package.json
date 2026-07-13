@@ -9,7 +9,12 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
