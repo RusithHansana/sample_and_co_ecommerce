@@ -17,3 +17,36 @@ server.on("error", (err: NodeJS.ErrnoException) => {
 
     process.exit(1);
 });
+
+// Gracefully shutting down server
+// with 10s of grace period for any unfinished requests to complete
+// triggers when "SIGTERM" and "SIGINT"
+function gracefulShutDown(signal: string) {
+    logger.info(`Receieved ${signal}. Server is shutting down...`);
+
+    server.close(async (err)=> {
+        if (err){
+            logger.error({err}, "Error during shutting down");
+            process.exit(1);
+        }
+
+        logger.info("Server shutdown complete");
+
+        // TODO: Close database connection pool here once a DB client is added
+        // e.g. await db.end() / await pool.end() / await prisma.$disconnect()
+        // Ensures no in-flight queries are abandoned and connections are
+        // released cleanly back to Postgres before the process exits.
+
+        logger.info("Cleanup Complete. Exiting process...");
+        process.exit(0);
+    });
+
+    // grace period of 10s if the server hangs.
+    setTimeout(() =>{
+        logger.error("Forced shutdown.");
+        process.exit(1);
+    }, 10_000).unref();
+}
+
+process.on("SIGTERM", () => gracefulShutDown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutDown("SIGINT"));
