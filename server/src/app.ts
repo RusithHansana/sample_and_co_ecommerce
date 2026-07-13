@@ -32,7 +32,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
  
-app.get('/api/health', (req: Request, res: Response) => {
+app.get("/api/health", (req: Request, res: Response) => {
     const body: ApiSuccessResponse<{status: string}> = { data: { status: "ok"} };
     res.status(200).json(body);
 });
@@ -43,7 +43,7 @@ app.use("/api/cart", express.Router());
 app.use("/api/checkout", express.Router());
 app.use("/api/orders", express.Router());
 app.use("/api/reviews", express.Router());
-app.use("/api/admin", express.Router())
+app.use("/api/admin", express.Router());
 
 app.use(notFoundHandler);
 app.use(errorHandler);
