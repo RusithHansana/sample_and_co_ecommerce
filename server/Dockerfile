@@ -13,6 +13,10 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 
+# dummy value so prisma generate actually builds client without any errors
+ARG DATABASE_URL=postgresql://user:pass@localhost:5432/db
+ENV DATABASE_URL=$DATABASE_URL
+
 RUN npm install
 
 # Generate the prisma client
