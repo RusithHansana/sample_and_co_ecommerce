@@ -21,7 +21,7 @@ app.use(requestLogger);
 app.use(helmet());
 app.use(cors({ origin: config.ALLOWED_ORIGIN, credentials: true}));
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true}));
  
 app.get('/api/health', (req: Request, res: Response) => {
     res.send({data: {status: "ok"}});
