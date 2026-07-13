@@ -8,6 +8,7 @@ import { requestLogger } from "./middleware/request-logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFoundHandler } from "./middleware/not-found-handler.js";
 import { limiter } from "./middleware/rate-limiter.js";
+import type { ApiSuccessResponse } from "./types/api-response.ts";
 
 const app: Express = express();
 
@@ -32,7 +33,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
  
 app.get('/api/health', (req: Request, res: Response) => {
-    res.send({data: {status: "ok"}});
+    const body: ApiSuccessResponse<{status: string}> = { data: { status: "ok"} };
+    res.status(200).json(body);
 });
 
 app.use("/api/auth",limiter, express.Router());
