@@ -1,10 +1,10 @@
 import app from "./app.js";
 import logger from "./lib/logger.js";
-import prisma, { pool} from "./lib/prisma.js";
+import prisma, { pool } from "./lib/prisma.js";
 import { config } from "./config/index.js";
 
 
-const server = app.listen(config.PORT,() => {
+const server = app.listen(config.PORT, () => {
     logger.info(`Server is running on port:${config.PORT} `)
 });
 
@@ -35,9 +35,9 @@ function gracefulShutDown(signal: string) {
 
     logger.info(`Received ${signal}. Server is shutting down...`);
 
-    server.close(async (err)=> {
-        if (err){
-            logger.error({err}, "Error during shutting down");
+    server.close(async (err) => {
+        if (err) {
+            logger.error({ err }, "Error during shutting down");
             process.exit(1);
         }
 
@@ -45,8 +45,16 @@ function gracefulShutDown(signal: string) {
 
         // Ensures no in-flight queries are abandoned and connections are
         // released cleanly back to Postgres before the process exits.
-        await prisma.$disconnect();
-        await pool.end();
+        try {
+            await prisma.$disconnect();
+        } catch (err) {
+            logger.error(`Error disconnecting Prisma client: ${err}`);
+        }
+        try {
+            await pool.end();
+        } catch (err) {
+            logger.error(`Error ending connection pool: ${err}`);
+        }
 
         logger.info("Cleanup Complete. Exiting process...");
         process.exit(0);
@@ -57,7 +65,7 @@ function gracefulShutDown(signal: string) {
     server.closeIdleConnections();
 
     // grace period of 10s if the server hangs.
-    setTimeout(() =>{
+    setTimeout(() => {
         logger.error("Forced shutdown.");
         process.exit(1);
     }, 10_000).unref(); // unref() tells node to allow the process to exit earlier if the server shutdown normally. if not this timeout will be triggered

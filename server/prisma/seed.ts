@@ -8,6 +8,10 @@ const pool = new Pool({
     connectionString: config.DATABASE_URL
 });
 
+pool.on("error", (err) => {
+    logger.error(`Unexpected error occurred on idle client: ${err}`);
+});
+
 const adapter = new PrismaPg(pool);
 
 const prisma = new PrismaClient({ adapter });
@@ -20,11 +24,11 @@ async function main() {
 }
 
 main()
-.catch((e) => {
-    logger.error(`Seed failed with error: ${e}`);
-    process.exit(1);
-})
-.finally(async () => {
-    await prisma.$disconnect();
-    await pool.end();
-});
+    .catch((e) => {
+        logger.error(`Seed failed with error: ${e}`);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+        await pool.end();
+    });
