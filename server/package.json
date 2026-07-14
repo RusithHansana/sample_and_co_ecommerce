@@ -10,11 +10,11 @@
   },
   "scripts": {
     "dev": "nodemon",
-    "db:migrate": "prisma migrate dev",
-    "db:push": "prisma db push",
+    "db:migrate": "dotenv -e ../.env.development -- prisma migrate dev",
+    "db:push": "dotenv -e ../.env.development -- prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:seed": "dotenv -e ../.env.development -- prisma db seed",
+    "db:studio": "dotenv -e ../.env.development -- prisma studio"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
