@@ -7,6 +7,8 @@ WORKDIR /app
 # not on every source code edit.
 COPY package.json package-lock.json ./
 
+RUN npm install
+
 # Copying the prisma schema and config ealier
 # so when `npx prisma generate` runs for the first time
 # it can access the schema and config
@@ -16,8 +18,6 @@ COPY prisma.config.ts ./
 # dummy value so prisma generate actually builds client without any errors
 ARG DATABASE_URL=postgresql://user:pass@localhost:5432/db
 ENV DATABASE_URL=$DATABASE_URL
-
-RUN npm install
 
 # Generate the prisma client
 RUN npx prisma generate

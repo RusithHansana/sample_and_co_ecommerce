@@ -4,4 +4,4 @@ dist
 .git
 .env
 
-/generated
+src/generated
