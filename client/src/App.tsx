@@ -1,121 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router"
+
+/* Storefront */
+import StorefrontLayout from "@/layouts/storefront-layout"
+import HomePage from "@/pages/storefront/home-page"
+import ProductListingPage from "@/pages/storefront/product-listing-page"
+import ProductDetailPage from "@/pages/storefront/product-detail-page"
+import CartPage from "@/pages/storefront/cart-page"
+import CheckoutPage from "@/pages/storefront/checkout-page"
+import OrderConfirmationPage from "@/pages/storefront/order-confirmation-page"
+import OrderHistoryPage from "@/pages/storefront/order-history-page"
+import OrderDetailPage from "@/pages/storefront/order-detail-page"
+import LoginPage from "@/pages/auth/login-page"
+import RegisterPage from "@/pages/auth/register-page"
+import NotFoundPage from "@/pages/not-found-page"
+
+/* Admin */
+import AdminLayout from "@/layouts/admin-layout"
+import DashboardPage from "@/pages/admin/dashboard-page"
+import ProductListPage from "@/pages/admin/product-list-page"
+import ProductFormPage from "@/pages/admin/product-form-page"
+import OrderListPage from "@/pages/admin/order-list-page"
+import AdminOrderDetailPage from "@/pages/admin/order-detail-page"
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* Storefront routes */}
+        <Route element={<StorefrontLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="products" element={<ProductListingPage />} />
+          <Route path="products/:id" element={<ProductDetailPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="order-confirmation/:id" element={<OrderConfirmationPage />} />
+          <Route path="orders" element={<OrderHistoryPage />} />
+          <Route path="orders/:id" element={<OrderDetailPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {/* Admin routes */}
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="products" element={<ProductListPage />} />
+          <Route path="products/new" element={<ProductFormPage />} />
+          <Route path="products/:id" element={<ProductFormPage />} />
+          <Route path="orders" element={<OrderListPage />} />
+          <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
