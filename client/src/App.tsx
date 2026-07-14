@@ -20,7 +20,7 @@ import DashboardPage from "@/pages/admin/dashboard-page"
 import ProductListPage from "@/pages/admin/product-list-page"
 import ProductFormPage from "@/pages/admin/product-form-page"
 import OrderListPage from "@/pages/admin/order-list-page"
-import AdminOrderDetailPage from "@/pages/admin/admin-order-detail-page"
+import AdminOrderDetailPage from "@/pages/admin/order-detail-page"
 
 function App() {
   return (
