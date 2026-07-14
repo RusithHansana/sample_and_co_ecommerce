@@ -19,6 +19,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
+    image: ecommerce-server:dev
     ports:
       - "3000:3000"
     volumes:
@@ -26,6 +27,8 @@ services:
       - /app/node_modules
     env_file:
       - .env.development
+    environment:
+      DATABASE_URL:postgresql://postgres:postgres@db:5432/sample_and_co_dev?schema=public
     depends_on:
       db:
         condition: service_healthy
@@ -34,6 +37,7 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+    image: ecommerce-client:dev
     ports:
       - "5173:5173"
     volumes:
