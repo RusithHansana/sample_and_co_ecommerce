@@ -1,7 +1,7 @@
-import axios, { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
 const api: AxiosInstance = axios.create({
-    baseURL: import.meta.env.BASE_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }
@@ -9,7 +9,7 @@ const api: AxiosInstance = axios.create({
 
 // TODO: Epic 2 - Attach access token from AuthContext
 api.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         return config
     },
     (error) => {
@@ -19,11 +19,11 @@ api.interceptors.request.use(
 
 // TODO: Epic 2 - Token refresh with queue/mutex pattern
 api.interceptors.response.use(
-    (response) => {
+    (response: AxiosResponse) => {
         return response
     },
     (error) => {
-        if (error.response?.statue == 401) {
+        if (error.response?.status == 401) {
             // refresh logic
         }
         return Promise.reject(error)
