@@ -1,5 +1,22 @@
 import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
+export interface ApiResponse<T> {
+    data: T;
+    pagination?: {
+        page: number,
+        pageSize: number,
+        total: number
+    };
+}
+
+export interface ApiError {
+    error: {
+        message: string;
+        code: string;
+        details?: { field: string; message: string }[]
+    };
+}
+
 const api: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api",
     headers: {
