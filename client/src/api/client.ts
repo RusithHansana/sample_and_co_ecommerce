@@ -23,7 +23,7 @@ api.interceptors.response.use(
         return response
     },
     (error) => {
-        if (error.response?.status == 401) {
+        if (error?.response?.status == 401) {
             // refresh logic
         }
         return Promise.reject(error)
