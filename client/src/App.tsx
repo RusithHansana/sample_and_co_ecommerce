@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router"
 
 /* Storefront */
-import StorefrontLayout from "@/layouts/storfront-layout"
+import StorefrontLayout from "@/layouts/storefront-layout"
 import HomePage from "@/pages/storefront/home-page"
 import ProductListingPage from "@/pages/storefront/product-listing-page"
 import ProductDetailPage from "@/pages/storefront/product-detail-page"
