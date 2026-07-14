@@ -29,6 +29,14 @@ main()
         process.exit(1);
     })
     .finally(async () => {
-        await prisma.$disconnect();
-        await pool.end();
+        try {
+            await prisma.$disconnect();
+        } catch (err) {
+            logger.error(`Error disconnecting Prisma client: ${err}`);
+        }
+        try {
+            await pool.end();
+        } catch (err) {
+            logger.error(`Error ending connection pool: ${err}`);
+        }
     });
