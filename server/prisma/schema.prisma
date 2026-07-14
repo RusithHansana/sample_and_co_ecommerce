@@ -6,3 +6,8 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model HealthCheck {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+}
