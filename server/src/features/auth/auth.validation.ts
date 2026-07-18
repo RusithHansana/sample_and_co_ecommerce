@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
-import { ValidationError } from "../../types/app-error.ts";
+import { ValidationError } from "../../types/app-error.js";
 
 export const registerValidation = [
     body("email").isEmail().withMessage("Valid email is required").normalizeEmail(),
