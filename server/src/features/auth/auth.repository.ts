@@ -1,5 +1,5 @@
 import prisma from "../../lib/prisma.js";
-import type { User } from "../../generated/prisma/client.js";
+import type { RefreshToken, User } from "../../generated/prisma/client.js";
 
 export function findUserByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { email } });
@@ -16,7 +16,7 @@ export function createUser(data: { email: string, passwordHash: string, name: st
     });
 }
 
-export function createRefreshToken(data: { tokenHash: string, userId: string, expiresAt: Date }) {
+export function createRefreshToken(data: { tokenHash: string, userId: string, expiresAt: Date }): Promise<RefreshToken> {
     return prisma.refreshToken.create({
         data: {
             tokenHash: data.tokenHash,
