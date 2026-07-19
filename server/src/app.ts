@@ -12,6 +12,8 @@ import { ForbiddenError } from "./types/app-error.js";
 
 import type { ApiSuccessResponse } from "./types/api-response.js";
 
+import authRouter from "./features/auth/auth.routes.ts";
+
 const app: Express = express();
 
 // for getting the actual ip coming from "X-Forwarded-For" when using a reverse proxy.
@@ -20,26 +22,26 @@ app.set("trust proxy", 1);
 app.use(requestLogger);
 app.use(helmet());
 
-app.use(cors({ 
+app.use(cors({
     origin: (origin, callback) => {
-        if(!origin || config.ALLOWED_ORIGIN.includes(origin)){
+        if (!origin || config.ALLOWED_ORIGIN.includes(origin)) {
             return callback(null, true);
         }
 
         return callback(new ForbiddenError(`Origin: ${origin} is not allowed by CORS`))
-    }, 
+    },
     credentials: true
 }));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
- 
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/api/health", (req: Request, res: Response) => {
-    const body: ApiSuccessResponse<{status: string}> = { data: { status: "ok"} };
+    const body: ApiSuccessResponse<{ status: string }> = { data: { status: "ok" } };
     res.status(200).json(body);
 });
 
-app.use("/api/auth",limiter, express.Router());
+app.use("/api/auth", limiter, authRouter);
 app.use("/api/products", express.Router());
 app.use("/api/cart", express.Router());
 app.use("/api/checkout", express.Router());
