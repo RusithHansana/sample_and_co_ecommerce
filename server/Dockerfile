@@ -19,13 +19,14 @@ COPY prisma.config.ts ./
 ARG DATABASE_URL=postgresql://user:pass@localhost:5432/db
 ENV DATABASE_URL=$DATABASE_URL
 
-# Generate the prisma client
-RUN npx prisma generate
-
 # Now copy the rest of the source. Changes here won't invalidate
 # the npm install layer above.
 COPY . .
 
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 EXPOSE 3000
 
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
 CMD ["npm", "run", "dev"]
