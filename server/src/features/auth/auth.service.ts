@@ -2,12 +2,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 import { ConflictError } from "../../types/app-error.js";
-import { createRefreshToken, createUser, findUserByEmail } from "./auth.repository.js";
+import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.ts";
 
 class AuthService {
     async register(data: { email: string, password: string, name: string }) {
-        const existingUser = await findUserByEmail(data.email);
+        const existingUser = await authRepository.findUserByEmail(data.email);
 
         if (existingUser) {
             throw new ConflictError(
@@ -21,7 +21,7 @@ class AuthService {
         let user;
 
         try {
-            user = await createUser({ email: data.email, passwordHash, name: data.name });
+            user = await authRepository.createUser({ email: data.email, passwordHash, name: data.name });
         } catch (error) {
             throw error
         }
@@ -43,7 +43,7 @@ class AuthService {
         const expiersAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
         try {
-            await createRefreshToken({
+            await authRepository.createRefreshToken({
                 tokenHash: hashedRefreshToken,
                 userId: user.id,
                 expiresAt: expiersAt
