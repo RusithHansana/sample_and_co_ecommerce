@@ -2,11 +2,11 @@ import prisma from "../../lib/prisma.js";
 import type { RefreshToken, User } from "../../generated/prisma/client.js";
 
 class AuthRepository {
-    findUserByEmail(email: string): Promise<User | null> {
+    findUserByEmail = (email: string): Promise<User | null> => {
         return prisma.user.findUnique({ where: { email } });
     }
 
-    createUser(data: { email: string, passwordHash: string, name: string }): Promise<User> {
+    createUser = (data: { email: string, passwordHash: string, name: string }): Promise<User> => {
         return prisma.user.create({
             data: {
                 email: data.email,
@@ -17,7 +17,7 @@ class AuthRepository {
         });
     }
 
-    createRefreshToken(data: { tokenHash: string, userId: string, expiresAt: Date }): Promise<RefreshToken> {
+    createRefreshToken = (data: { tokenHash: string, userId: string, expiresAt: Date }): Promise<RefreshToken> => {
         return prisma.refreshToken.create({
             data: {
                 tokenHash: data.tokenHash,

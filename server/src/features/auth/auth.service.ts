@@ -6,7 +6,7 @@ import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.ts";
 
 class AuthService {
-    async register(data: { email: string, password: string, name: string }) {
+    register = async (data: { email: string, password: string, name: string }) => {
         const existingUser = await authRepository.findUserByEmail(data.email);
 
         if (existingUser) {
