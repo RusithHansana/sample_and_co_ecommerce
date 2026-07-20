@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 </form>
 
                 <p>
-                    Already have an account <Link to="/login">Sign up</Link>
+                    Already have an account <Link to="/login">Sign in</Link>
                 </p>
             </section>
         </div>
