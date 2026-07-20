@@ -48,7 +48,7 @@ export default function RegisterPage() {
 
                 setFieldErrors(errors);
             } else {
-                setFormError(errorBody.message ?? "Registration failed. Please try again");
+                setFormError(errorBody?.message ?? err.message ?? "Registration failed. Please try again");
             }
         } finally {
             setIsSubmitting(false);
