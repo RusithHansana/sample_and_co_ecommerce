@@ -12,7 +12,7 @@ import { ForbiddenError } from "./types/app-error.js";
 
 import type { ApiSuccessResponse } from "./types/api-response.js";
 
-import authRouter from "./features/auth/auth.routes.ts";
+import authRouter from "./features/auth/auth.routes.js";
 
 const app: Express = express();
 
