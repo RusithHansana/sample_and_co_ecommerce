@@ -65,7 +65,7 @@ export default function RegisterPage() {
                         <label htmlFor="email">Email</label>
                         <input
                             id="email"
-                            type="text"
+                            type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="john@email.com"
