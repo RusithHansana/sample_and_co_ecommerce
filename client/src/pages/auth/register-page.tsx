@@ -39,7 +39,7 @@ export default function RegisterPage() {
 
             if (status === 409) {
                 setFormError(errorBody.message);
-            } else if (status === 422 && errorBody?.details) {
+            } else if (status === 422 && Array.isArray(errorBody?.details)) {
                 const errors: FormFieldErrors = {};
 
                 for (const { field, message } of errorBody.details as { field: string, message: string }[]) {
