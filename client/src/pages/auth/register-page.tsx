@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
             if (response.status === 201) {
                 // Temporary in memory storage until auth context is added in story 2.4
-                const { accessToken } = response.data;
+                const { accessToken } = response.data.data;
                 (window as any).__accessToken = accessToken;
                 navigate('/');
             }
