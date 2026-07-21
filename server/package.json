@@ -12,7 +12,7 @@
     "dev": "nodemon",
     "db:migrate": "dotenv -e ../.env.development -- prisma migrate dev",
     "db:push": "dotenv -e ../.env.development -- prisma db push",
-    "db:generate": "dotenv -e ../.env.development -- prisma generate",
+    "db:generate": "prisma generate",
     "db:seed": "dotenv -e ../.env.development -- prisma db seed",
     "db:studio": "dotenv -e ../.env.development -- prisma studio"
   },
