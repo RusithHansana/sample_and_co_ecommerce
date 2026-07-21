@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
 export interface ApiResponse<T> {
     data: T;
@@ -39,13 +39,30 @@ api.interceptors.response.use(
     (response: AxiosResponse) => {
         return response
     },
-    (error) => {
+    (error: AxiosError<ApiError>) => {
+        if (!error) {
+            return Promise.reject(new Error("Unknown Error. Please try again."));
+        }
+
+        if (!axios.isAxiosError(error)) {
+            return Promise.reject(error);
+        }
+
         if (error?.response?.status == 401) {
             // refresh logic
         }
-        return Promise.reject(error)
+
+        if (error.response) {
+            return Promise.reject(error)
+        }
+
+        // for errors that originates from network issues
+        // eg: CORS, DNS, timeouts
+        return Promise.reject(
+            new Error("Network Error. Please check your connection and try again later.")
+        )
+
     }
 )
-
 
 export default api;
