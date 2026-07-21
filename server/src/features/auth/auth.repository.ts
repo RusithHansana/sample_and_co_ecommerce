@@ -8,7 +8,7 @@ class AuthRepository {
         return prisma.user.findUnique({ where: { email } });
     }
 
-    createUser = (data: { id: string, email: string, passwordHash: string, name: string }, tx: TxClient): Promise<User> => {
+    createUser = (data: { id: string, email: string, passwordHash: string, name: string }, tx?: TxClient): Promise<User> => {
         const client = tx ?? prisma;
 
         return client.user.create({
@@ -22,7 +22,7 @@ class AuthRepository {
         });
     }
 
-    createRefreshToken = (data: { tokenHash: string, userId: string, expiresAt: Date }, tx: TxClient): Promise<RefreshToken> => {
+    createRefreshToken = (data: { tokenHash: string, userId: string, expiresAt: Date }, tx?: TxClient): Promise<RefreshToken> => {
         const client = tx ?? prisma;
 
         return client.refreshToken.create({
