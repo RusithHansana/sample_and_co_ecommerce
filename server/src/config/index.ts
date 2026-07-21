@@ -5,7 +5,8 @@ interface Config {
     JWT_SECRET: string;
     JWT_REFRESH_SECRET: string;
     JWT_ACCESS_EXPIRY: SignOptions["expiresIn"];
-    JWT_REFRESH_EXPIRY_DAYS: SignOptions["expiresIn"];
+    JWT_REFRESH_EXPIRY: SignOptions["expiresIn"];
+    JWT_REFRESH_EXPIRY_DAYS: number,
     STRIPE_SECRET_KEY: string;
     STRIPE_WEBHOOK_SECRET: string;
     CLOUDINARY_URL: string;
@@ -70,7 +71,8 @@ export const config: Config = {
     JWT_SECRET: getEnv("JWT_SECRET"),
     JWT_REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET"),
     JWT_ACCESS_EXPIRY: "15m",
-    JWT_REFRESH_EXPIRY_DAYS: "7d",
+    JWT_REFRESH_EXPIRY: "7d",
+    JWT_REFRESH_EXPIRY_DAYS: 7,
     STRIPE_SECRET_KEY: getEnv("STRIPE_SECRET_KEY"),
     STRIPE_WEBHOOK_SECRET: getEnv("STRIPE_WEBHOOK_SECRET"),
     CLOUDINARY_URL: getEnv("CLOUDINARY_URL"),

@@ -31,12 +31,12 @@ class AuthService {
         const refreshToken = jwt.sign(
             { userId, tokenId: randomUUID() },
             config.JWT_REFRESH_SECRET,
-            { expiresIn: config.JWT_REFRESH_EXPIRY_DAYS }
+            { expiresIn: config.JWT_REFRESH_EXPIRY }
         )
 
         const hashedRefreshToken = await bcrypt.hash(refreshToken, config.BCRYPT_SALT_ROUNDS);
 
-        const expiersAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
         const user = await prisma.$transaction(async (tx) => {
             const createdUser = await authRepository.createUser({
@@ -49,7 +49,7 @@ class AuthService {
             await authRepository.createRefreshToken({
                 tokenHash: hashedRefreshToken,
                 userId: createdUser.id,
-                expiresAt: expiersAt
+                expiresAt: expiresAt
             }, tx);
 
             return createdUser;

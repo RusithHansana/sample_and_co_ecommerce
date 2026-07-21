@@ -14,7 +14,7 @@ class AuthController {
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                maxAge: config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
                 path: '/api/auth'
             }
         );
