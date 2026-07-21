@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { ConflictError } from "../../types/app-error.js";
 import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
+import prisma from "../../lib/prisma.ts";
 
 class AuthService {
     register = async (data: { email: string, password: string, name: string }) => {
@@ -16,24 +17,19 @@ class AuthService {
             );
         }
 
+        const userId = randomUUID();
+        const role = "CUSTOMER"
+
         const passwordHash = await bcrypt.hash(data.password, config.BCRYPT_SALT_ROUNDS);
 
-        let user;
-
-        try {
-            user = await authRepository.createUser({ email: data.email, passwordHash, name: data.name });
-        } catch (error) {
-            throw error
-        }
-
         const accessToken = jwt.sign(
-            { userId: user.id, role: user.role },
+            { userId, role },
             config.JWT_SECRET,
             { expiresIn: config.JWT_ACCESS_EXPIRY }
         )
 
         const refreshToken = jwt.sign(
-            { userId: user.id, tokenId: randomUUID() },
+            { userId, tokenId: randomUUID() },
             config.JWT_REFRESH_SECRET,
             { expiresIn: config.JWT_REFRESH_EXPIRY_DAYS }
         )
@@ -42,15 +38,22 @@ class AuthService {
 
         const expiersAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-        try {
+        const user = await prisma.$transaction(async (tx) => {
+            const createdUser = await authRepository.createUser({
+                id: userId,
+                email: data.email,
+                passwordHash,
+                name: data.name
+            }, tx);
+
             await authRepository.createRefreshToken({
                 tokenHash: hashedRefreshToken,
-                userId: user.id,
+                userId: createdUser.id,
                 expiresAt: expiersAt
-            });
-        } catch (error) {
-            throw error
-        }
+            }, tx);
+
+            return createdUser;
+        });
 
         return {
             user: {
