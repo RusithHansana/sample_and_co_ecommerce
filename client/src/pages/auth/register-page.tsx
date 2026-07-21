@@ -18,7 +18,7 @@ export default function RegisterPage() {
     const [formError, setFormError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSumbit: SubmitEventHandler<HTMLFormElement> = async (e) => {
+    const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault();
         setFieldErrors({});
         setFormError(null);
@@ -60,7 +60,7 @@ export default function RegisterPage() {
             <h1>Create Account</h1>
             <section>
                 {formError && <p>{formError}</p>}
-                <form onSubmit={handleSumbit}>
+                <form onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="email">Email</label>
                         <input

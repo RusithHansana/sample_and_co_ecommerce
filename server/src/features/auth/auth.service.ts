@@ -12,7 +12,7 @@ class AuthService {
 
         if (existingUser) {
             throw new ConflictError(
-                "A user with this email already exist",
+                "A user with this email already exists",
                 "DUPLICATE_EMAIL"
             );
         }
