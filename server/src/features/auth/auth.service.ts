@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { ConflictError } from "../../types/app-error.js";
 import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
-import prisma from "../../lib/prisma.ts";
+import prisma from "../../lib/prisma.js";
 
 class AuthService {
     register = async (data: { email: string, password: string, name: string }) => {

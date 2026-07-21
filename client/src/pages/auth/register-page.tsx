@@ -76,7 +76,7 @@ export default function RegisterPage() {
                         <label htmlFor="name">Name</label>
                         <input
                             id="name"
-                            type="name"
+                            type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="john doe"
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                 </form>
 
                 <p>
-                    Already have an account <Link to="/login">Sign in</Link>
+                    Already have an account? <Link to="/login">Sign in</Link>
                 </p>
             </section>
         </div>

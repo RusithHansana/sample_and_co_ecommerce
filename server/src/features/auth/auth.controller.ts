@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { authService } from "./auth.service.js";
 import { config } from "../../config/index.js";
-import { sendSuccessResponse } from "../../utils/send-api-response.ts";
+import { sendSuccessResponse } from "../../utils/send-api-response.js";
 
 class AuthController {
     register = async (req: Request, res: Response) => {
