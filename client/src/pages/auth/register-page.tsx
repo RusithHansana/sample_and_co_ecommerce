@@ -38,7 +38,7 @@ export default function RegisterPage() {
             const errorBody = err.response?.data?.error;
 
             if (status === 409) {
-                setFormError(errorBody.message);
+                setFormError(errorBody?.message ?? "A user with this email already exists.");
             } else if (status === 422 && Array.isArray(errorBody?.details)) {
                 const errors: FormFieldErrors = {};
 
@@ -48,7 +48,7 @@ export default function RegisterPage() {
 
                 setFieldErrors(errors);
             } else {
-                setFormError(errorBody?.message ?? err.message ?? "Registration failed. Please try again");
+                setFormError(errorBody?.message ?? err.message ?? "Registration failed. Please try again.");
             }
         } finally {
             setIsSubmitting(false);

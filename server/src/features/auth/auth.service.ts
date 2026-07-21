@@ -12,7 +12,7 @@ class AuthService {
 
         if (existingUser) {
             throw new ConflictError(
-                "A user with this email already exists",
+                "A user with this email already exists.",
                 "DUPLICATE_EMAIL"
             );
         }
@@ -71,13 +71,13 @@ class AuthService {
         const user = await authRepository.findUserByEmail(data.email);
 
         if (!user) {
-            throw new UnauthorizedError("Invalid email or password");
+            throw new UnauthorizedError("Invalid email or password.");
         }
 
         const isValid = await bcrypt.compare(data.password, user.passwordHash);
 
         if (!isValid) {
-            throw new UnauthorizedError("Invalid email or password");
+            throw new UnauthorizedError("Invalid email or password.");
         }
 
         const accessToken = jwt.sign(

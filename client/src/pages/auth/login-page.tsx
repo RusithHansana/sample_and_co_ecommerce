@@ -38,7 +38,7 @@ export default function LoginPage() {
             const errorBody = err.response?.data?.error;
 
             if (status === 401) {
-                setFormError(errorBody.message)
+                setFormError(errorBody?.message ?? "Invalid email or password.")
             } else if (status === 422 && Array.isArray(errorBody?.details)) {
                 const errors: FormFieldErrors = {}
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
 
                 setFieldErrors(errors);
             } else {
-                setFormError(errorBody?.message ?? err.message ?? "Sign in failed. Please try again")
+                setFormError(errorBody?.message ?? err.message ?? "Sign in failed. Please try again.")
             }
         } finally {
             setIsSubmitting(false);
