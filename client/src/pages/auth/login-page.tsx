@@ -10,7 +10,8 @@ interface FormFieldErrors {
 export default function LoginPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const returnUrl = searchParams.get('returnUrl') || '/'
+    const rawReturnUrl = searchParams.get('returnUrl') || '/'
+    const returnUrl = (rawReturnUrl && rawReturnUrl.startsWith('/') && !rawReturnUrl.startsWith('//')) ? rawReturnUrl : '/';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
