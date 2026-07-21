@@ -8,6 +8,11 @@ export const registerValidation = [
     body("name").trim().notEmpty().withMessage("Name is required"),
 ];
 
+export const loginValidation = [
+    body("email").isEmail().withMessage("Valid email is required").normalizeEmail(),
+    body("password").notEmpty().withMessage("Password is required")
+]
+
 export function handleValidationErrors(req: Request, res: Response, next: NextFunction) {
     const errors = validationResult(req);
 
