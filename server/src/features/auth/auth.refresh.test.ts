@@ -223,4 +223,59 @@ describe("POST /api/auth/refresh", () => {
             expect(cookieStr).toContain("HttpOnly");
         });
     });
+
+    describe("atomic rotation behavior", () => {
+        it("should revoke the old token in the DB after a successful refresh", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const storedToken = buildStoredToken({
+                id: "old-token-id",
+                userId: TEST_USER_ID,
+                isRevoked: false,
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue({
+                id: TEST_USER_ID,
+                email: "test@example.com",
+                name: "Test User",
+                role: "CUSTOMER",
+            });
+
+
+            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+
+            mockPrisma.$transaction.mockImplementation(async (fn: Function) => {
+                return fn(mockPrisma);
+            });
+
+            mockPrisma.refreshToken.update.mockResolvedValue({
+                ...storedToken,
+                isRevoked: true,
+            });
+            mockPrisma.refreshToken.create.mockResolvedValue(
+                buildStoredToken({ tokenHash: "new-hashed-token" }),
+            );
+
+            await request(app)
+                .post("/api/auth/refresh")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(mockPrisma.refreshToken.update).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: { id: "old-token-id" },
+                    data: expect.objectContaining({ isRevoked: true }),
+                }),
+            );
+
+            expect(mockPrisma.refreshToken.create).toHaveBeenCalled();
+
+            expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+        });
+    });
 });
