@@ -74,7 +74,24 @@ class AuthController {
 
         try {
 
-            await authService.refreshTokens(refreshToken);
+            const result = await authService.refreshTokens(refreshToken);
+
+            res.cookie(
+                'refreshToken', result.refreshToken,
+                {
+                    httpOnly: true,
+                    secure: config.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge,
+                    path: '/api/auth'
+
+                }
+            );
+
+            sendSuccessResponse(res, {
+                accessToken: result.accessToken
+            }, 200);
+
         } catch (err: any) {
             clearCookies(res);
             throw err;
