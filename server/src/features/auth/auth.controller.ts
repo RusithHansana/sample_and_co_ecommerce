@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { authService } from "./auth.service.js";
 import { config } from "../../config/index.js";
 import { sendSuccessResponse } from "../../utils/send-api-response.js";
-import { UnauthorizedError } from "../../types/app-error.ts";
+import { UnauthorizedError } from "../../types/app-error.js";
 
 const maxAge = config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
 
@@ -70,6 +70,13 @@ class AuthController {
         if (!refreshToken) {
             clearCookies(res);
             throw new UnauthorizedError("Invalid Token");
+        }
+
+        try {
+
+            await authService.refreshTokens(refreshToken);
+        } catch (err: any) {
+            clearCookies(res);
         }
     }
 }

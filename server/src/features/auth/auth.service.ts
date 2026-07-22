@@ -113,6 +113,17 @@ class AuthService {
             refreshToken
         }
     }
+
+    refreshTokens = async (rawToken: string) => {
+
+        try {
+            const payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET);
+
+            return payload
+        } catch (err: any) {
+            throw new UnauthorizedError("Invalid Token");
+        }
+    }
 }
 
 export const authService = new AuthService();

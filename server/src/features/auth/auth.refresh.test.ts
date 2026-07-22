@@ -39,20 +39,20 @@ const TEST_USER_ID = randomUUID();
 const TEST_TOKEN_ID = randomUUID();
 
 /** Create a valid, signed refresh token JWT */
-function createRefreshToken(
+async function createRefreshToken(
     payload: { userId: string; tokenId: string },
     options?: jwt.SignOptions,
-): string {
+) {
     return jwt.sign(payload, config.JWT_REFRESH_SECRET, {
         expiresIn: options?.expiresIn ?? "7d",
     });
 }
 
 /** Create an expired refresh token JWT */
-function createExpiredRefreshToken(payload: {
+async function createExpiredRefreshToken(payload: {
     userId: string;
     tokenId: string;
-}): string {
+}) {
     return jwt.sign(payload, config.JWT_REFRESH_SECRET, {
         expiresIn: "0s",
     });
@@ -105,6 +105,34 @@ describe("POST /api/auth/refresh", () => {
             expect(res.status).toBe(401);
             expect(res.body.error).toBeDefined();
             expect(res.body.error.code).toMatch("UNAUTHORIZED")
+        })
+    });
+
+    describe("when the refresh token is expired", () => {
+        it("should return 401 and clear the refresh token cookie", async () => {
+            const expiredToken = await createExpiredRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            // waiting for token to expire.
+            await new Promise((r) => setTimeout(r, 50));
+
+            const res = await request(app)
+                .post("/api/auth/refresh")
+                .set("Cookie", `refreshToken=${expiredToken}`)
+                .send();
+
+            expect(res.status).toBe(401);
+            expect(res.body.error).toBeDefined();
+
+            const cookies = res.headers["set-cookie"];
+
+            if (cookies) {
+                const cookieStr = Array.isArray(cookies) ? cookies.join(";") : cookies;
+
+                expect(cookieStr).toMatch(/refreshToken=;|refreshToken=\s*;|Max-Age=0|Expires=Thu, 01 Jan 1970/i);
+            }
         })
     })
 });
