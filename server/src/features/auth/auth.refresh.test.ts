@@ -387,4 +387,55 @@ describe("POST /api/auth/refresh", () => {
             }
         });
     });
+
+    describe("returned access token", () => {
+        it("should be a valid JWT containing userId and role", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const storedToken = buildStoredToken({
+                userId: TEST_USER_ID,
+                isRevoked: false,
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue({
+                id: TEST_USER_ID,
+                email: "test@example.com",
+                name: "Test User",
+                role: "CUSTOMER",
+            });
+
+            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.$transaction.mockImplementation(async (fn: Function) =>
+                fn(mockPrisma),
+            );
+            mockPrisma.refreshToken.update.mockResolvedValue({
+                ...storedToken,
+                isRevoked: true,
+            });
+            mockPrisma.refreshToken.create.mockResolvedValue(
+                buildStoredToken({ tokenHash: "new-hashed-token" }),
+            );
+
+            const res = await request(app)
+                .post("/api/auth/refresh")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(200);
+
+            const { accessToken } = res.body.data;
+            const decoded = jwt.verify(accessToken, config.JWT_SECRET) as {
+                userId: string;
+                role: string;
+            };
+
+            expect(decoded.userId).toBe(TEST_USER_ID);
+            expect(decoded.role).toBeDefined();
+        });
+    });
 });
