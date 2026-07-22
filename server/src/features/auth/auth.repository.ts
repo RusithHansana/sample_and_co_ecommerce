@@ -47,12 +47,21 @@ class AuthRepository {
     }
 
     revokeRefreshToken = (tokenId: string, tx?: TxClient): Promise<RefreshToken> => {
-        const client = tx ?? prisma
+        const client = tx ?? prisma;
 
         return client.refreshToken.update({
             where: { id: tokenId },
             data: { isRevoked: true }
         });
+    }
+
+    revokeAllUserRefreshTokens = (userId: string, tx?: TxClient) => {
+        const client = tx ?? prisma;
+
+        return client.refreshToken.updateMany({
+            where: { userId },
+            data: { isRevoked: true }
+        })
     }
 }
 

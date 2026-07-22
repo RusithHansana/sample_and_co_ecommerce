@@ -153,6 +153,7 @@ class AuthService {
         }
 
         if (matchedToken.isRevoked) {
+            await authRepository.revokeAllUserRefreshTokens(matchedToken.userId);
             throw new UnauthorizedError("Invalid Token");
         }
 

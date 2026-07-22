@@ -278,4 +278,55 @@ describe("POST /api/auth/refresh", () => {
             expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
         });
     });
+
+    describe("when an already-revoked refresh token is presented (reuse detection)", () => {
+        it("should revoke ALL tokens for the user and return 401", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const revokedToken = buildStoredToken({
+                userId: TEST_USER_ID,
+                isRevoked: true, // already revoked!
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue({
+                id: TEST_USER_ID,
+                email: "test@example.com",
+                name: "Test User",
+                role: "CUSTOMER",
+            });
+
+            mockPrisma.refreshToken.findMany.mockResolvedValue([revokedToken]);
+
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+
+            mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 3 });
+
+            const res = await request(app)
+                .post("/api/auth/refresh")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(401);
+
+            expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: expect.objectContaining({ userId: TEST_USER_ID }),
+                    data: expect.objectContaining({ isRevoked: true }),
+                }),
+            );
+
+            const cookies = res.headers["set-cookie"];
+            if (cookies) {
+                const cookieStr = Array.isArray(cookies)
+                    ? cookies.join("; ")
+                    : cookies;
+                expect(cookieStr).toMatch(
+                    /refreshToken=;|Max-Age=0|Expires=Thu, 01 Jan 1970/i,
+                );
+            }
+        });
+    });
 });
