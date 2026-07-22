@@ -77,6 +77,7 @@ class AuthController {
             await authService.refreshTokens(refreshToken);
         } catch (err: any) {
             clearCookies(res);
+            throw err;
         }
     }
 }
