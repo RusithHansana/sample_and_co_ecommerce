@@ -2,8 +2,22 @@ import type { Request, Response } from "express";
 import { authService } from "./auth.service.js";
 import { config } from "../../config/index.js";
 import { sendSuccessResponse } from "../../utils/send-api-response.js";
+import { UnauthorizedError } from "../../types/app-error.ts";
 
 const maxAge = config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+
+const clearCookies = (res: Response) => {
+    res.clearCookie(
+        'refreshToken',
+        {
+            httpOnly: true,
+            secure: config.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge,
+            path: '/api/auth'
+        }
+    )
+}
 
 class AuthController {
     register = async (req: Request, res: Response) => {
@@ -48,6 +62,15 @@ class AuthController {
             user: result.user,
             accessToken: result.accessToken
         }, 200);
+    }
+
+    refresh = async (req: Request, res: Response) => {
+        const { refreshToken } = req.cookies;
+
+        if (!refreshToken) {
+            clearCookies(res);
+            throw new UnauthorizedError("Invalid Token");
+        }
     }
 }
 

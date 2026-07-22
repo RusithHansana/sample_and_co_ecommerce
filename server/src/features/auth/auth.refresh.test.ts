@@ -94,5 +94,17 @@ describe("POST /api/auth/refresh", () => {
             expect(res.body.data.status).toBeDefined();
             expect(res.body.data.status).toMatch("ok");
         })
+    });
+
+    describe("when no refresh token cookie is present", () => {
+        it("should return 401 with UNAUTHORIZED code", async () => {
+            const res = await request(app)
+                .post("/api/auth/refresh")
+                .send()
+
+            expect(res.status).toBe(401);
+            expect(res.body.error).toBeDefined();
+            expect(res.body.error.code).toMatch("UNAUTHORIZED")
+        })
     })
 });
