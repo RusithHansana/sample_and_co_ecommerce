@@ -329,4 +329,62 @@ describe("POST /api/auth/refresh", () => {
             }
         });
     });
+
+    describe("cookie security flags", () => {
+        it("should set HttpOnly, SameSite=Strict, and Path=/api/auth on the refresh cookie", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const storedToken = buildStoredToken({
+                userId: TEST_USER_ID,
+                isRevoked: false,
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue({
+                id: TEST_USER_ID,
+                email: "test@example.com",
+                name: "Test User",
+                role: "CUSTOMER",
+            });
+
+            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.$transaction.mockImplementation(async (fn: Function) =>
+                fn(mockPrisma),
+            );
+            mockPrisma.refreshToken.update.mockResolvedValue({
+                ...storedToken,
+                isRevoked: true,
+            });
+            mockPrisma.refreshToken.create.mockResolvedValue(
+                buildStoredToken({ tokenHash: "new-hashed-token" }),
+            );
+
+            const res = await request(app)
+                .post("/api/auth/refresh")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(200);
+
+            const cookies = res.headers["set-cookie"];
+            expect(cookies).toBeDefined();
+
+            const cookieStr = Array.isArray(cookies)
+                ? cookies.join("; ")
+                : cookies;
+
+            expect(cookieStr).toContain("HttpOnly");
+            expect(cookieStr).toContain("SameSite=Strict");
+            expect(cookieStr).toContain("Path=/api/auth");
+
+            // In test env, Secure should NOT be set (only in production)
+            if (config.NODE_ENV !== "production") {
+                expect(cookieStr).not.toContain("Secure");
+            }
+        });
+    });
 });
