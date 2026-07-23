@@ -85,7 +85,15 @@ api.interceptors.response.use(
         const originalRequest = error.config as | (InternalAxiosRequestConfig & { _retry?: boolean })
             | undefined;
 
+        // Defense-in-depth: /auth/refresh should always go through refreshApi,
+        // never api — this guards against future refactors reintroducing recursion.
+        // This was added as an extra safety measure
+        if (originalRequest?.url?.includes('/auth/refresh')) {
+            return Promise.reject(error);
+        }
+
         if (error?.response?.status == 401 && originalRequest && !originalRequest._retry) {
+            originalRequest._retry = true;
             if (isRefreshing) {
                 return new Promise<string | null>((resolve, reject) => {
                     retryQueue.push({ resolve, reject })
