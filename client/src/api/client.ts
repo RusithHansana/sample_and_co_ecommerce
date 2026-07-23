@@ -113,7 +113,7 @@ api.interceptors.response.use(
 
             try {
                 const response = await refreshApi.post('/auth/refresh');
-                const newAccessToken = response.data.data.accessToken;
+                const newAccessToken = response.data?.data?.accessToken;
 
                 (window as any).__accessToken = newAccessToken;
 

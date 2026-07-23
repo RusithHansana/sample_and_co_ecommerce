@@ -129,6 +129,10 @@ class AuthService {
             throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
+        if (!payload.userId) {
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+        }
+
         const { userId } = payload;
 
         const userTokens = await authRepository.findRefreshTokensByUserId(userId);
@@ -149,6 +153,11 @@ class AuthService {
         }
 
         if (!matchedToken) {
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+        }
+
+        if (matchedToken.expiresAt < new Date()) {
+            await authRepository.revokeRefreshToken(matchedToken.id);
             throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
