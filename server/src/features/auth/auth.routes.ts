@@ -8,5 +8,7 @@ router.post("/register", registerValidation, handleValidationErrors, authControl
 
 router.post("/login", loginValidation, handleValidationErrors, authController.login);
 
+router.post("/refresh", authController.refresh);
+
 
 export default router;

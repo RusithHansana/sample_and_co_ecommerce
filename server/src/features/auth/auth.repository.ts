@@ -8,6 +8,10 @@ class AuthRepository {
         return prisma.user.findUnique({ where: { email } });
     }
 
+    findUserById = (id: string): Promise<User | null> => {
+        return prisma.user.findUnique({ where: { id } });
+    }
+
     createUser = (data: { id: string, email: string, passwordHash: string, name: string }, tx?: TxClient): Promise<User> => {
         const client = tx ?? prisma;
 
@@ -32,6 +36,32 @@ class AuthRepository {
                 expiresAt: data.expiresAt
             }
         });
+    }
+
+    findRefreshTokensByUserId = (userId: string): Promise<RefreshToken[]> => {
+        return prisma.refreshToken.findMany({
+            where: {
+                userId
+            }
+        });
+    }
+
+    revokeRefreshToken = (tokenId: string, tx?: TxClient): Promise<RefreshToken> => {
+        const client = tx ?? prisma;
+
+        return client.refreshToken.update({
+            where: { id: tokenId },
+            data: { isRevoked: true }
+        });
+    }
+
+    revokeAllUserRefreshTokens = (userId: string, tx?: TxClient) => {
+        const client = tx ?? prisma;
+
+        return client.refreshToken.updateMany({
+            where: { userId },
+            data: { isRevoked: true }
+        })
     }
 }
 

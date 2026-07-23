@@ -13,6 +13,7 @@ import { ForbiddenError } from "./types/app-error.js";
 import type { ApiSuccessResponse } from "./types/api-response.js";
 
 import authRouter from "./features/auth/auth.routes.js";
+import cookieParser from "cookie-parser";
 
 const app: Express = express();
 
@@ -34,6 +35,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/health", (req: Request, res: Response) => {
