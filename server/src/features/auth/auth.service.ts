@@ -5,7 +5,7 @@ import { ConflictError, UnauthorizedError } from "../../types/app-error.js";
 import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
 import prisma from "../../lib/prisma.js";
-import type { RefreshToken } from "../../generated/prisma/client.ts";
+import type { RefreshToken } from "../../generated/prisma/client.js";
 
 interface RefreshTokenPayload {
     userId: string;
