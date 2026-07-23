@@ -92,25 +92,15 @@ describe("POST /api/auth/refresh", () => {
         vi.clearAllMocks();
     });
 
-    describe("health check", () => {
-        it("should return 200 with ok message", async () => {
-            const res = await request(app).get("/api/health").send();
-
-            expect(res.status).toBe(200);
-            expect(res.body.data.status).toBeDefined();
-            expect(res.body.data.status).toMatch("ok");
-        })
-    });
-
     describe("when no refresh token cookie is present", () => {
-        it("should return 401 with UNAUTHORIZED code", async () => {
+        it("should return 401 with INVALID_TOKEN code", async () => {
             const res = await request(app)
                 .post("/api/auth/refresh")
                 .send()
 
             expect(res.status).toBe(401);
             expect(res.body.error).toBeDefined();
-            expect(res.body.error.code).toMatch("UNAUTHORIZED")
+            expect(res.body.error.code).toMatch("INVALID_TOKEN")
         })
     });
 

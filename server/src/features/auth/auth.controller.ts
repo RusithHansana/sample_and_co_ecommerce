@@ -69,7 +69,7 @@ class AuthController {
 
         if (!refreshToken) {
             clearCookies(res);
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         try {

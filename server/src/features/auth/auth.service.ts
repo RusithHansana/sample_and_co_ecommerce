@@ -126,7 +126,7 @@ class AuthService {
         try {
             payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload;
         } catch (err: any) {
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         const { userId } = payload;
@@ -134,7 +134,7 @@ class AuthService {
         const userTokens = await authRepository.findRefreshTokensByUserId(userId);
 
         if (userTokens.length === 0) {
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         let matchedToken: RefreshToken | null = null;
@@ -149,18 +149,18 @@ class AuthService {
         }
 
         if (!matchedToken) {
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         if (matchedToken.isRevoked) {
             await authRepository.revokeAllUserRefreshTokens(matchedToken.userId);
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         const user = await authRepository.findUserById(matchedToken.userId);
 
         if (!user) {
-            throw new UnauthorizedError("Invalid Token");
+            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
 
         const newAccessToken = jwt.sign(
