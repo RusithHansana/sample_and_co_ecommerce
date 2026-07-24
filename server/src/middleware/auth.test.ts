@@ -290,4 +290,69 @@ describe("authentication middleware", () => {
             });
         });
     });
-})
+});
+
+describe("requireRole middleware", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    describe("when the user's role is in the allowed list", () => {
+        it("should call next() with no error", async () => {
+            const { requireRole } = await import("./auth.js");
+
+            const middleware = await requireRole("ADMIN", "CUSTOMER");
+
+            const req = {
+                user: { id: TEST_USER_ID, email: "user@example.com", role: "ADMIN" },
+            } as any;
+            const res = {} as any;
+            const next = vi.fn();
+
+            middleware(req, res, next);
+
+            expect(next).toHaveBeenCalledOnce();
+            expect(next).toHaveBeenCalledWith();
+        });
+    });
+
+    describe("when the user's role is NOT in the allowed list", () => {
+        it("should call next with a ForbiddenError", async () => {
+            const { requireRole } = await import("./auth.js");
+
+            const middleware = requireRole("ADMIN");
+
+            const req = {
+                user: { id: TEST_USER_ID, email: "user@example.com", role: "CUSTOMER" },
+            } as any;
+            const res = {} as any;
+            const next = vi.fn();
+
+            middleware(req, res, next);
+
+            expect(next).toHaveBeenCalledOnce();
+            const error = next.mock.calls[0][0];
+            expect(error).toBeDefined();
+            expect(error.statusCode).toBe(403);
+        });
+    });
+
+    describe("when req.user is missing (unauthenticated)", () => {
+        it("should call next with a ForbiddenError", async () => {
+            const { requireRole } = await import("./auth.js");
+
+            const middleware = requireRole("ADMIN");
+
+            const req = {} as any; // no user property
+            const res = {} as any;
+            const next = vi.fn();
+
+            middleware(req, res, next);
+
+            expect(next).toHaveBeenCalledOnce();
+            const error = next.mock.calls[0][0];
+            expect(error).toBeDefined();
+            expect(error.statusCode).toBe(403);
+        });
+    });
+});

@@ -42,3 +42,13 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
     next();
 }
+
+export function requireRole(...roles: string[]) {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return next(new ForbiddenError("You do not have access to this resource."));
+        }
+
+        next();
+    }
+}
