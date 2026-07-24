@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 
-export function ProtectedRoute() {
+export function GuestRoute() {
     const { isAuthenticated, isLoading } = useAuth();
 
     if (isLoading) return null;
