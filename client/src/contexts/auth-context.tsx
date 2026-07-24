@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const value: AuthContextValue = {
         user,
         accessToken,
-        isAuthenticated: !user,
+        isAuthenticated: !!user,
         isLoading,
         login,
         register,
