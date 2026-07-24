@@ -204,6 +204,36 @@ class AuthService {
             refreshToken: newRefreshToken,
         }
     }
+
+    logout = async (rawToken: string) => {
+        let payload: RefreshTokenPayload;
+
+        try {
+            payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload
+        } catch {
+            return;
+        }
+
+        if (!payload.userId) return;
+
+        const userTokens = await authRepository.findRefreshTokensByUserId(payload.userId);
+
+        if (userTokens.length === 0) return;
+
+        for (const userToken of userTokens) {
+            const isMatch = await bcrypt.compare(rawToken, userToken.tokenHash);
+
+            if (isMatch) {
+                if (!userToken.isRevoked) {
+                    await authRepository.revokeRefreshToken(userToken.id)
+                }
+
+                return;
+            }
+        };
+
+        return;
+    }
 }
 
 export const authService = new AuthService();

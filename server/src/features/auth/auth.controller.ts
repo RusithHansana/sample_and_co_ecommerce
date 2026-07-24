@@ -97,6 +97,23 @@ class AuthController {
             throw err;
         }
     }
+
+    logout = async (req: Request, res: Response) => {
+        const { refreshToken } = req.cookies;
+
+        if (refreshToken) {
+            try {
+                await authService.logout(refreshToken);
+            } catch {
+                //catching db error silently
+            }
+        }
+
+        clearCookies(res);
+        sendSuccessResponse(res, {
+            message: "Logged out Successfully!"
+        }, 200);
+    }
 }
 
 export const authController = new AuthController();

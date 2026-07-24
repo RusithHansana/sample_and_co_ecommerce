@@ -82,3 +82,122 @@ function buildStoredToken(overrides: Partial<{
 // ──────────────────────────────────────────────
 // Tests
 // ──────────────────────────────────────────────
+
+describe("POST /api/auth/logout", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    describe("when a valid refresh token cookie is present", () => {
+        it("should revoke the token, clear the cookie, and return 200", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const storedToken = buildStoredToken({
+                id: "token-to-revoke",
+                userId: TEST_USER_ID,
+                isRevoked: false,
+            });
+
+            // DB returns stored tokens for this user
+            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
+
+            // bcrypt.compare matches the presented token
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+
+            // Revocation succeeds
+            mockPrisma.refreshToken.update.mockResolvedValue({
+                ...storedToken,
+                isRevoked: true,
+            });
+
+            const res = await request(app)
+                .post("/api/auth/logout")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(200);
+            expect(res.body.data).toBeDefined();
+            expect(res.body.data.message).toMatch(/logged out/i);
+
+            // Token was revoked in DB
+            expect(mockPrisma.refreshToken.update).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: { id: "token-to-revoke" },
+                    data: expect.objectContaining({ isRevoked: true }),
+                }),
+            );
+
+            // Cookie was cleared
+            const cookies = res.headers["set-cookie"];
+            expect(cookies).toBeDefined();
+            const cookieStr = Array.isArray(cookies)
+                ? cookies.join("; ")
+                : cookies;
+            expect(cookieStr).toMatch(
+                /refreshToken=;|refreshToken=\s*;|Max-Age=0|Expires=Thu, 01 Jan 1970/i,
+            );
+        });
+    });
+
+    describe("when no refresh token cookie is present", () => {
+        it("should still return 200 and clear the cookie", async () => {
+            const res = await request(app)
+                .post("/api/auth/logout")
+                .send();
+
+            expect(res.status).toBe(200);
+            expect(res.body.data.message).toMatch(/logged out/i);
+        });
+    });
+
+    describe("when the refresh token is already revoked", () => {
+        it("should still return 200 without errors", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            const revokedToken = buildStoredToken({
+                userId: TEST_USER_ID,
+                isRevoked: true,
+            });
+
+            mockPrisma.refreshToken.findMany.mockResolvedValue([revokedToken]);
+            (bcrypt.compare as Mock).mockResolvedValue(true);
+
+            const res = await request(app)
+                .post("/api/auth/logout")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(200);
+            expect(res.body.data.message).toMatch(/logged out/i);
+        });
+    });
+
+    describe("when the JWT is valid but no matching token exists in DB", () => {
+        it("should still return 200", async () => {
+            const rawRefreshToken = createRefreshToken({
+                userId: TEST_USER_ID,
+                tokenId: TEST_TOKEN_ID,
+            });
+
+            // DB returns tokens but none match
+            mockPrisma.refreshToken.findMany.mockResolvedValue([
+                buildStoredToken({ userId: TEST_USER_ID }),
+            ]);
+            (bcrypt.compare as Mock).mockResolvedValue(false);
+
+            const res = await request(app)
+                .post("/api/auth/logout")
+                .set("Cookie", `refreshToken=${rawRefreshToken}`)
+                .send();
+
+            expect(res.status).toBe(200);
+            expect(res.body.data.message).toMatch(/logged out/i);
+        });
+    });
+});

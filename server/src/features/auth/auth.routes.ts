@@ -10,5 +10,7 @@ router.post("/login", loginValidation, handleValidationErrors, authController.lo
 
 router.post("/refresh", authController.refresh);
 
+router.post("/logout", authController.logout);
+
 
 export default router;
