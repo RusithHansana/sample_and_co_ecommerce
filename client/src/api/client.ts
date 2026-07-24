@@ -28,11 +28,26 @@ const api: AxiosInstance = axios.create({
 // stop recursing into an infinite loop while refreshing.
 // `api` instance with the expired refresh token will throw 401
 // which in turn try another refresh creating an infinite loop
-const refreshApi: AxiosInstance = axios.create({
+export const refreshApi: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api",
     withCredentials: true
 });
 
+// We cannot import ReactContext directly into this file.
+// So these gets registered on mount, so that interceptors can access them.
+let getAccessToken: (() => string | null) = () => null;
+let onTokenRefreshed: ((token: string) => void) = () => { };
+let onAuthFailure: (() => void) = () => { }
+
+export function setAuthCallbacks(callbacks: {
+    getToken: () => string | null;
+    onRefresh: (token: string) => void;
+    onFailure: () => void;
+}) {
+    getAccessToken = callbacks.getToken;
+    onTokenRefreshed = callbacks.onRefresh;
+    onAuthFailure = callbacks.onFailure;
+}
 
 let isRefreshing = false;
 let retryQueue: Array<{
@@ -52,7 +67,7 @@ function processQueue(error: unknown, token: string | null = null) {
 // TODO: Epic 2 - Attach access token from AuthContext
 api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const accessToken = (window as any).__accessToken;
+        const accessToken = getAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`
@@ -115,7 +130,7 @@ api.interceptors.response.use(
                 const response = await refreshApi.post('/auth/refresh');
                 const newAccessToken = response.data?.data?.accessToken;
 
-                (window as any).__accessToken = newAccessToken;
+                onTokenRefreshed(newAccessToken);
 
                 // retries all the other requests that kept in the queue
                 processQueue(null, newAccessToken);
@@ -130,8 +145,7 @@ api.interceptors.response.use(
                 return api(originalRequest);
             } catch (error) {
                 processQueue(error, null); // reject all the requests
-                (window as any).__accessToken = undefined;
-                window.location.href = '/login';
+                onAuthFailure();
 
                 return Promise.reject(error);
             } finally {
