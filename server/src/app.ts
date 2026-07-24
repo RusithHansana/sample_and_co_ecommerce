@@ -14,6 +14,7 @@ import type { ApiSuccessResponse } from "./types/api-response.js";
 
 import authRouter from "./features/auth/auth.routes.js";
 import cookieParser from "cookie-parser";
+import { authenticate, requireRole } from "./middleware/auth.js";
 
 const app: Express = express();
 
@@ -49,7 +50,7 @@ app.use("/api/cart", express.Router());
 app.use("/api/checkout", express.Router());
 app.use("/api/orders", express.Router());
 app.use("/api/reviews", express.Router());
-app.use("/api/admin", express.Router());
+app.use("/api/admin", authenticate, requireRole("ADMIN"), express.Router());
 
 app.use(notFoundHandler);
 app.use(errorHandler);

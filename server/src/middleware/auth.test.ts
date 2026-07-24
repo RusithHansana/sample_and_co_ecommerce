@@ -356,3 +356,63 @@ describe("requireRole middleware", () => {
         });
     });
 });
+
+describe("admin route protection (integration)", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    describe("when no Authorization header is sent to /api/admin/*", () => {
+        it("should return 401", async () => {
+            const res = await request(app)
+                .get("/api/admin/anything")
+                .send();
+
+            expect(res.status).toBe(401);
+            expect(res.body.error).toBeDefined();
+        });
+    });
+
+    describe("when a CUSTOMER token is sent to /api/admin/*", () => {
+        it("should return 403", async () => {
+            const token = createAccessToken({
+                userId: TEST_USER_ID,
+                role: "CUSTOMER",
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue(
+                buildUser({ id: TEST_USER_ID, role: "CUSTOMER" }),
+            );
+
+            const res = await request(app)
+                .get("/api/admin/anything")
+                .set("Authorization", `Bearer ${token}`)
+                .send();
+
+            expect(res.status).toBe(403);
+            expect(res.body.error).toBeDefined();
+        });
+    });
+
+    describe("when an ADMIN token is sent to /api/admin/*", () => {
+        it("should pass through middleware (404 from empty router is fine)", async () => {
+            const token = createAccessToken({
+                userId: TEST_USER_ID,
+                role: "ADMIN",
+            });
+
+            mockPrisma.user.findUnique.mockResolvedValue(
+                buildUser({ id: TEST_USER_ID, role: "ADMIN" }),
+            );
+
+            const res = await request(app)
+                .get("/api/admin/anything")
+                .set("Authorization", `Bearer ${token}`)
+                .send();
+
+            expect(res.status).toBe(404);
+            expect(res.status).not.toBe(401);
+            expect(res.status).not.toBe(403);
+        });
+    });
+});
