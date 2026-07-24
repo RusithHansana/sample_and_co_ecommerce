@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 
 // ──────────────────────────────────────────────
-// Mocks — MUST be declared before app import
+// Mocks
 // ──────────────────────────────────────────────
 
 const { mockPrisma } = vi.hoisted(() => {
@@ -37,7 +37,7 @@ vi.mock("bcryptjs", () => ({
 }));
 
 // ──────────────────────────────────────────────
-// Imports — AFTER mocks
+// Imports
 // ──────────────────────────────────────────────
 import app from "../app.ts";
 import { config } from "../config/index.ts";
