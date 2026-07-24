@@ -1,6 +1,6 @@
-import api from "@/api/client";
 import { useState, type SubmitEventHandler } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { useAuth } from "@/hooks/use-auth";
 
 interface FormFieldErrors {
     email?: string;
@@ -10,11 +10,14 @@ interface FormFieldErrors {
 export default function LoginPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const { login } = useAuth();
+
     const rawReturnUrl = searchParams.get('returnUrl') || '/'
     const returnUrl = (rawReturnUrl && rawReturnUrl.startsWith('/') && !rawReturnUrl.startsWith('//')) ? rawReturnUrl : '/';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
     const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
     const [formError, setFormError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,13 +29,8 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await api.post("/auth/login", { email, password });
-
-            if (response.status === 200) {
-                const { accessToken } = response.data.data;
-                (window as any).__accessToken = accessToken;
-                navigate(returnUrl)
-            }
+            await login(email, password);
+            navigate(returnUrl);
         } catch (err: any) {
             const status = err.response?.status;
             const errorBody = err.response?.data?.error;
