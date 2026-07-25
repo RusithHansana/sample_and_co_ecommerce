@@ -124,7 +124,6 @@ api.interceptors.response.use(
             }
 
             isRefreshing = true;
-            originalRequest._retry = true;
 
             try {
                 const response = await refreshApi.post('/auth/refresh');
