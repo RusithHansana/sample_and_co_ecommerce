@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 try {
                     const payload = decodeJwtPayload(newToken);
-                    setUser((prev) => prev ? { ...prev, role: payload.role } : prev);
+                    setUser((prev) => prev ? { ...prev, role: payload.role } : { id: payload.userId, name: '', email: '', role: payload.role });
                 } catch (error) {
                     // if decoding fails keep the existing user state
                 }
