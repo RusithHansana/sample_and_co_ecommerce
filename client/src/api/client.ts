@@ -1,5 +1,7 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
 
+export { isAxiosError } from "axios";
+
 export interface ApiResponse<T> {
     data: T;
     pagination?: {

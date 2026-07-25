@@ -1,7 +1,7 @@
 import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { type AuthUser, type AuthContextValue } from "@/types/auth";
 import { useNavigate } from "react-router";
-import api, { refreshApi, setAuthCallbacks } from "@/api/client";
+import api, { isAxiosError, refreshApi, setAuthCallbacks } from "@/api/client";
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -16,6 +16,12 @@ function decodeJwtPayload(token: string): { userId: string, role: string } {
             .join(""),
     );
     return JSON.parse(jsonPayload);
+}
+
+async function fetchCurrentUser(): Promise<AuthUser> {
+    const response = await api.get('/auth/me');
+
+    return response.data.data;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -46,15 +52,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         setAuthCallbacks({
             getToken: () => accessTokenRef.current,
-            onRefresh: (newToken: string) => {
+            onRefresh: async (newToken: string) => {
                 setAccessToken(newToken);
                 accessTokenRef.current = newToken
 
                 try {
-                    const payload = decodeJwtPayload(newToken);
-                    setUser((prev) => prev ? { ...prev, role: payload.role } : { id: payload.userId, name: '', email: '', role: payload.role });
-                } catch (error) {
-                    // if decoding fails keep the existing user state
+                    const authenticatedUser = await fetchCurrentUser();
+                    setUser(authenticatedUser);
+                } catch (error: any) {
+                    if (isAxiosError(error) && error.response?.status === 401) {
+                        clearAuthState()
+                    }
+
                 }
             },
             onFailure: () => {
@@ -76,17 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const token = response.data?.data?.accessToken;
 
                 if (token) {
-                    const payload = decodeJwtPayload(token);
-
-                    setAuthState(
-                        {
-                            id: payload.userId,
-                            name: '',
-                            email: '',
-                            role: payload.role
-                        },
-                        token
-                    );
+                    setAccessToken(token);
+                    accessTokenRef.current = token
+                    const authenticatedUser = await fetchCurrentUser();
+                    setAuthState(authenticatedUser, token);
                 }
             } catch (error) {
                 if (!isCancelled) {
