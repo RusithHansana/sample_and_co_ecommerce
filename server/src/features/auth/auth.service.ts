@@ -6,6 +6,7 @@ import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
 import prisma from "../../lib/prisma.js";
 import type { RefreshToken } from "../../generated/prisma/client.js";
+import { sendSuccessResponse } from "../../utils/send-api-response.ts";
 
 interface RefreshTokenPayload {
     userId: string;
@@ -233,6 +234,21 @@ class AuthService {
         };
 
         return;
+    }
+
+    me = async (userId: string) => {
+        const user = await authRepository.findUserById(userId);
+
+        if (!user) {
+            throw new UnauthorizedError("User not found.");
+        }
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+        }
     }
 }
 

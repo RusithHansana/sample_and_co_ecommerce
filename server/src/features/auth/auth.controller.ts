@@ -114,6 +114,23 @@ class AuthController {
             message: "Logged out Successfully!"
         }, 200);
     }
+
+    me = async (req: Request, res: Response) => {
+        const user = req.user;
+
+        if (!user) {
+            throw new UnauthorizedError("User not found");
+        }
+
+        const me = await authService.me(user.id);
+
+        sendSuccessResponse(res, {
+            id: me.id,
+            email: me.email,
+            name: me.name,
+            role: me.role,
+        }, 200);
+    }
 }
 
 export const authController = new AuthController();
