@@ -39,8 +39,10 @@ class AuthService {
             { expiresIn: config.JWT_ACCESS_EXPIRY }
         )
 
+        const tokenId = randomUUID();
+
         const refreshToken = jwt.sign(
-            { userId, tokenId: randomUUID() },
+            { userId, tokenId },
             config.JWT_REFRESH_SECRET,
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         )
@@ -58,6 +60,7 @@ class AuthService {
             }, tx);
 
             await authRepository.createRefreshToken({
+                id: tokenId,
                 tokenHash: hashedRefreshToken,
                 userId: createdUser.id,
                 expiresAt
@@ -97,8 +100,10 @@ class AuthService {
             { expiresIn: config.JWT_ACCESS_EXPIRY }
         );
 
+        const tokenId = randomUUID();
+
         const refreshToken = jwt.sign(
-            { userId: user.id, tokenId: randomUUID() },
+            { userId: user.id, tokenId },
             config.JWT_REFRESH_SECRET,
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         );
@@ -108,6 +113,7 @@ class AuthService {
         const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
         await authRepository.createRefreshToken({
+            id: tokenId,
             tokenHash: hashedRefreshToken,
             userId: user.id,
             expiresAt
@@ -132,48 +138,25 @@ class AuthService {
             try {
                 payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload;
             } catch (err) {
-                this.logRefreshTokenError("Refresh token verification failed.", undefined, err);
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
 
-            if (!payload.userId) {
-                this.logRefreshTokenError("Refresh token payload is missing userId.");
+            if (!payload.userId || !payload.tokenId) {
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
 
-            const { userId } = payload;
-
-            const userTokens = await authRepository.findRefreshTokensByUserId(userId);
-
-            if (userTokens.length === 0) {
-                this.logRefreshTokenError("No refresh tokens found for user.", { userId });
-                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
-            }
-
-            let matchedToken: RefreshToken | null = null;
-
-            for (const storedToken of userTokens) {
-                const isMatch = await bcrypt.compare(rawToken, storedToken.tokenHash);
-
-                if (isMatch) {
-                    matchedToken = storedToken;
-                    break;
-                }
-            }
+            let matchedToken = await authRepository.findRefreshTokenById(payload.tokenId);
 
             if (!matchedToken) {
-                this.logRefreshTokenError("Refresh token did not match any stored token.", { userId, tokenCount: userTokens.length });
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
 
             if (matchedToken.expiresAt < new Date()) {
-                this.logRefreshTokenError("Matched refresh token is expired.", { userId, tokenId: matchedToken.id });
                 await authRepository.revokeRefreshToken(matchedToken.id);
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
 
             if (matchedToken.isRevoked) {
-                this.logRefreshTokenError("Matched refresh token is revoked.", { userId, tokenId: matchedToken.id });
                 await authRepository.revokeAllUserRefreshTokens(matchedToken.userId);
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
@@ -181,18 +164,19 @@ class AuthService {
             const user = await authRepository.findUserById(matchedToken.userId);
 
             if (!user) {
-                this.logRefreshTokenError("User for refresh token was not found.", { userId: matchedToken.userId, tokenId: matchedToken.id });
                 throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
             }
 
             const newAccessToken = jwt.sign(
-                { userId, role: user.role },
+                { userId: user.id, role: user.role },
                 config.JWT_SECRET,
                 { expiresIn: config.JWT_ACCESS_EXPIRY }
             )
 
+            const tokenId = randomUUID();
+
             const newRefreshToken = jwt.sign(
-                { userId, tokenId: randomUUID() },
+                { userId: user.id, tokenId },
                 config.JWT_REFRESH_SECRET,
                 { expiresIn: config.JWT_REFRESH_EXPIRY }
             )
@@ -206,8 +190,9 @@ class AuthService {
                 await authRepository.revokeRefreshToken(matchedToken.id, tx);
 
                 await authRepository.createRefreshToken({
+                    id: tokenId,
                     tokenHash: hashedRefreshToken,
-                    userId,
+                    userId: user.id,
                     expiresAt
                 }, tx);
             });
@@ -235,23 +220,13 @@ class AuthService {
             return;
         }
 
-        if (!payload.userId) return;
+        const refreshToken = await authRepository.findRefreshTokenById(payload.tokenId);
 
-        const userTokens = await authRepository.findRefreshTokensByUserId(payload.userId);
+        if (!refreshToken) return;
 
-        if (userTokens.length === 0) return;
-
-        for (const userToken of userTokens) {
-            const isMatch = await bcrypt.compare(rawToken, userToken.tokenHash);
-
-            if (isMatch) {
-                if (!userToken.isRevoked) {
-                    await authRepository.revokeRefreshToken(userToken.id)
-                }
-
-                return;
-            }
-        };
+        if (!refreshToken.isRevoked) {
+            await authRepository.revokeRefreshToken(refreshToken.id)
+        }
 
         return;
     }
