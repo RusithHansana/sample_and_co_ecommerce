@@ -1,12 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { ConflictError, UnauthorizedError } from "../../types/app-error.js";
 import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
 import prisma from "../../lib/prisma.js";
-import logger from "../../lib/logger.js";
-import type { RefreshToken } from "../../generated/prisma/client.js";
 
 interface RefreshTokenPayload {
     userId: string;
@@ -14,8 +12,8 @@ interface RefreshTokenPayload {
 }
 
 class AuthService {
-    private logRefreshTokenError = (message: string, details?: Record<string, unknown>, err?: unknown) => {
-        logger.error({ err, ...details }, message);
+    private hashToken = (token: string): string => {
+        return createHash('sha256').update(token).digest("hex");
     }
 
     register = async (data: { email: string, password: string, name: string }) => {
@@ -47,7 +45,7 @@ class AuthService {
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         )
 
-        const hashedRefreshToken = await bcrypt.hash(refreshToken, config.BCRYPT_SALT_ROUNDS);
+        const hashedRefreshToken = this.hashToken(refreshToken);
 
         const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
@@ -108,7 +106,7 @@ class AuthService {
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         );
 
-        const hashedRefreshToken = await bcrypt.hash(refreshToken, config.BCRYPT_SALT_ROUNDS);
+        const hashedRefreshToken = this.hashToken(refreshToken);
 
         const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
@@ -181,7 +179,7 @@ class AuthService {
                 { expiresIn: config.JWT_REFRESH_EXPIRY }
             )
 
-            const hashedRefreshToken = await bcrypt.hash(newRefreshToken, config.BCRYPT_SALT_ROUNDS);
+            const hashedRefreshToken = this.hashToken(newRefreshToken);
 
             const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
@@ -205,8 +203,6 @@ class AuthService {
             if (err instanceof UnauthorizedError) {
                 throw err;
             }
-
-            this.logRefreshTokenError("Unexpected error while refreshing tokens.", undefined, err);
             throw err;
         }
     }
