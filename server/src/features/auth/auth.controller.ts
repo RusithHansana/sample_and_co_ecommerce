@@ -3,6 +3,7 @@ import { authService } from "./auth.service.js";
 import { config } from "../../config/index.js";
 import { sendSuccessResponse } from "../../utils/send-api-response.js";
 import { UnauthorizedError } from "../../types/app-error.js";
+import logger from "../../lib/logger.js";
 
 const maxAge = config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
 
@@ -12,7 +13,7 @@ const clearCookies = (res: Response) => {
         {
             httpOnly: true,
             secure: config.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge,
             path: '/api/auth'
         }
@@ -29,7 +30,7 @@ class AuthController {
             {
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge,
                 path: '/api/auth'
             }
@@ -51,7 +52,7 @@ class AuthController {
             {
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: 'lax',
                 maxAge,
                 path: '/api/auth'
 
@@ -68,6 +69,7 @@ class AuthController {
         const { refreshToken } = req.cookies;
 
         if (!refreshToken) {
+            logger.error("Refresh token cookie is missing.");
             clearCookies(res);
             throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
         }
@@ -81,7 +83,7 @@ class AuthController {
                 {
                     httpOnly: true,
                     secure: config.NODE_ENV === 'production',
-                    sameSite: 'strict',
+                    sameSite: 'lax',
                     maxAge,
                     path: '/api/auth'
 

@@ -11,6 +11,18 @@ async function fetchCurrentUser(): Promise<AuthUser> {
     return response.data.data;
 }
 
+let bootstrapRefreshPromise: Promise<any> | null = null;
+
+function bootstrapRefresh() {
+    if (bootstrapRefreshPromise) return bootstrapRefreshPromise;
+
+    return bootstrapRefreshPromise = refreshApi
+        .post('/auth/refresh')
+        .finally(() => {
+            bootstrapRefreshPromise = null;
+        });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const navigate = useNavigate();
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -61,13 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [clearAuthState, navigate]);
 
     useEffect(() => {
-        let isCancelled = false;
+        const abortController = new AbortController();
 
         async function bootstrap() {
             try {
-                const response = await refreshApi.post('/auth/refresh');
+                if (abortController.signal.aborted) return;
 
-                if (isCancelled) return;
+                const response = await bootstrapRefresh();
+
+                if (abortController.signal.aborted) return;
 
                 const token = response.data?.data?.accessToken;
 
@@ -78,11 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setAuthState(authenticatedUser, token);
                 }
             } catch (error) {
-                if (!isCancelled) {
+                if (!abortController.signal.aborted) {
                     clearAuthState();
                 }
             } finally {
-                if (!isCancelled) {
+                if (!abortController.signal.aborted) {
                     setIsLoading(false);
                 }
             }
@@ -91,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         bootstrap();
 
         return () => {
-            isCancelled = true;
+            abortController.abort();
         }
 
     }, [setAuthState, clearAuthState]);
