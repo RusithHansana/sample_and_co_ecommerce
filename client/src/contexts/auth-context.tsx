@@ -1,0 +1,160 @@
+import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { type AuthUser, type AuthContextValue } from "@/types/auth";
+import { useNavigate } from "react-router";
+import api, { isAxiosError, refreshApi, setAuthCallbacks } from "@/api/client";
+
+export const AuthContext = createContext<AuthContextValue | null>(null);
+
+async function fetchCurrentUser(): Promise<AuthUser> {
+    const response = await api.get('/auth/me');
+
+    return response.data.data;
+}
+
+let bootstrapRefreshPromise: Promise<any> | null = null;
+
+function bootstrapRefresh() {
+    if (bootstrapRefreshPromise) return bootstrapRefreshPromise;
+
+    return bootstrapRefreshPromise = refreshApi
+        .post('/auth/refresh')
+        .finally(() => {
+            bootstrapRefreshPromise = null;
+        });
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const navigate = useNavigate();
+    const [user, setUser] = useState<AuthUser | null>(null);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const accessTokenRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        accessTokenRef.current = accessToken;
+    }, [accessToken]);
+
+    const setAuthState = useCallback((authenticatedUser: AuthUser, token: string) => {
+        setUser(authenticatedUser);
+        setAccessToken(token);
+        accessTokenRef.current = token;
+    }, []);
+
+    const clearAuthState = useCallback(() => {
+        setUser(null);
+        setAccessToken(null);
+        accessTokenRef.current = null;
+    }, []);
+
+
+    useEffect(() => {
+        setAuthCallbacks({
+            getToken: () => accessTokenRef.current,
+            onRefresh: async (newToken: string) => {
+                setAccessToken(newToken);
+                accessTokenRef.current = newToken
+
+                try {
+                    const authenticatedUser = await fetchCurrentUser();
+                    setUser(authenticatedUser);
+                } catch (error: any) {
+                    if (isAxiosError(error) && error.response?.status === 401) {
+                        clearAuthState()
+                    }
+
+                }
+            },
+            onFailure: () => {
+                clearAuthState();
+                navigate('/login', { replace: true });
+            }
+        });
+    }, [clearAuthState, navigate]);
+
+    useEffect(() => {
+        const abortController = new AbortController();
+
+        async function bootstrap() {
+            try {
+                if (abortController.signal.aborted) return;
+
+                const response = await bootstrapRefresh();
+
+                if (abortController.signal.aborted) return;
+
+                const token = response.data?.data?.accessToken;
+
+                if (token) {
+                    setAccessToken(token);
+                    accessTokenRef.current = token
+                    const authenticatedUser = await fetchCurrentUser();
+                    setAuthState(authenticatedUser, token);
+                }
+            } catch (error) {
+                if (!abortController.signal.aborted) {
+                    clearAuthState();
+                }
+            } finally {
+                if (!abortController.signal.aborted) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        bootstrap();
+
+        return () => {
+            abortController.abort();
+        }
+
+    }, [setAuthState, clearAuthState]);
+
+    const login = useCallback(
+        async (email: string, password: string) => {
+            const response = await api.post('/auth/login', { email, password });
+
+            const { user: authenticatedUser, accessToken: token } = response.data.data;
+
+            setAuthState(authenticatedUser, token);
+        }, [setAuthState]);
+
+    const register = useCallback(
+        async (email: string, password: string, name: string) => {
+            const response = await api.post('/auth/register', {
+                email,
+                password,
+                name
+            });
+
+            const { user: authenticatedUser, accessToken: token } = response.data.data;
+
+            setAuthState(authenticatedUser, token);
+        }, [setAuthState]);
+
+    const logout = useCallback(
+        async () => {
+            try {
+                await api.post('/auth/logout');
+            } catch (error) {
+
+            } finally {
+                clearAuthState();
+                navigate('/', { replace: true })
+            }
+        }, [clearAuthState, navigate]);
+
+    const value: AuthContextValue = {
+        user,
+        accessToken,
+        isAuthenticated: !!user,
+        isLoading,
+        login,
+        register,
+        logout,
+    };
+
+    return (
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    );
+}

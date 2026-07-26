@@ -1,11 +1,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { ConflictError, UnauthorizedError } from "../../types/app-error.js";
 import { authRepository } from "./auth.repository.js";
 import { config } from "../../config/index.js";
 import prisma from "../../lib/prisma.js";
-import type { RefreshToken } from "../../generated/prisma/client.js";
 
 interface RefreshTokenPayload {
     userId: string;
@@ -13,6 +12,10 @@ interface RefreshTokenPayload {
 }
 
 class AuthService {
+    private hashToken = (token: string): string => {
+        return createHash('sha256').update(token).digest("hex");
+    }
+
     register = async (data: { email: string, password: string, name: string }) => {
         const existingUser = await authRepository.findUserByEmail(data.email);
 
@@ -34,13 +37,15 @@ class AuthService {
             { expiresIn: config.JWT_ACCESS_EXPIRY }
         )
 
+        const tokenId = randomUUID();
+
         const refreshToken = jwt.sign(
-            { userId, tokenId: randomUUID() },
+            { userId, tokenId },
             config.JWT_REFRESH_SECRET,
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         )
 
-        const hashedRefreshToken = await bcrypt.hash(refreshToken, config.BCRYPT_SALT_ROUNDS);
+        const hashedRefreshToken = this.hashToken(refreshToken);
 
         const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
@@ -53,6 +58,7 @@ class AuthService {
             }, tx);
 
             await authRepository.createRefreshToken({
+                id: tokenId,
                 tokenHash: hashedRefreshToken,
                 userId: createdUser.id,
                 expiresAt
@@ -92,17 +98,20 @@ class AuthService {
             { expiresIn: config.JWT_ACCESS_EXPIRY }
         );
 
+        const tokenId = randomUUID();
+
         const refreshToken = jwt.sign(
-            { userId: user.id, tokenId: randomUUID() },
+            { userId: user.id, tokenId },
             config.JWT_REFRESH_SECRET,
             { expiresIn: config.JWT_REFRESH_EXPIRY }
         );
 
-        const hashedRefreshToken = await bcrypt.hash(refreshToken, config.BCRYPT_SALT_ROUNDS);
+        const hashedRefreshToken = this.hashToken(refreshToken);
 
         const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
         await authRepository.createRefreshToken({
+            id: tokenId,
             tokenHash: hashedRefreshToken,
             userId: user.id,
             expiresAt
@@ -121,87 +130,115 @@ class AuthService {
     }
 
     refreshTokens = async (rawToken: string) => {
+        try {
+            let payload: RefreshTokenPayload;
+
+            try {
+                payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload;
+            } catch (err) {
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            if (!payload.userId || !payload.tokenId) {
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            let matchedToken = await authRepository.findRefreshTokenById(payload.tokenId);
+
+            if (!matchedToken) {
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            if (matchedToken.expiresAt < new Date()) {
+                await authRepository.revokeRefreshToken(matchedToken.id);
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            if (matchedToken.isRevoked) {
+                await authRepository.revokeAllUserRefreshTokens(matchedToken.userId);
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            const user = await authRepository.findUserById(matchedToken.userId);
+
+            if (!user) {
+                throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            }
+
+            const newAccessToken = jwt.sign(
+                { userId: user.id, role: user.role },
+                config.JWT_SECRET,
+                { expiresIn: config.JWT_ACCESS_EXPIRY }
+            )
+
+            const tokenId = randomUUID();
+
+            const newRefreshToken = jwt.sign(
+                { userId: user.id, tokenId },
+                config.JWT_REFRESH_SECRET,
+                { expiresIn: config.JWT_REFRESH_EXPIRY }
+            )
+
+            const hashedRefreshToken = this.hashToken(newRefreshToken);
+
+            const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+
+
+            await prisma.$transaction(async (tx) => {
+                await authRepository.revokeRefreshToken(matchedToken.id, tx);
+
+                await authRepository.createRefreshToken({
+                    id: tokenId,
+                    tokenHash: hashedRefreshToken,
+                    userId: user.id,
+                    expiresAt
+                }, tx);
+            });
+
+            return {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+            }
+        } catch (err) {
+            if (err instanceof UnauthorizedError) {
+                throw err;
+            }
+            throw err;
+        }
+    }
+
+    logout = async (rawToken: string) => {
         let payload: RefreshTokenPayload;
 
         try {
-            payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload;
-        } catch (err: any) {
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            payload = jwt.verify(rawToken, config.JWT_REFRESH_SECRET) as RefreshTokenPayload
+        } catch {
+            return;
         }
 
-        if (!payload.userId) {
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+        const refreshToken = await authRepository.findRefreshTokenById(payload.tokenId);
+
+        if (!refreshToken) return;
+
+        if (!refreshToken.isRevoked) {
+            await authRepository.revokeRefreshToken(refreshToken.id)
         }
 
-        const { userId } = payload;
+        return;
+    }
 
-        const userTokens = await authRepository.findRefreshTokensByUserId(userId);
-
-        if (userTokens.length === 0) {
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
-        }
-
-        let matchedToken: RefreshToken | null = null;
-
-        for (const storedToken of userTokens) {
-            const isMatch = await bcrypt.compare(rawToken, storedToken.tokenHash);
-
-            if (isMatch) {
-                matchedToken = storedToken;
-                break;
-            }
-        }
-
-        if (!matchedToken) {
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
-        }
-
-        if (matchedToken.expiresAt < new Date()) {
-            await authRepository.revokeRefreshToken(matchedToken.id);
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
-        }
-
-        if (matchedToken.isRevoked) {
-            await authRepository.revokeAllUserRefreshTokens(matchedToken.userId);
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
-        }
-
-        const user = await authRepository.findUserById(matchedToken.userId);
+    me = async (userId: string) => {
+        const user = await authRepository.findUserById(userId);
 
         if (!user) {
-            throw new UnauthorizedError("Invalid Token", "INVALID_TOKEN");
+            throw new UnauthorizedError("User not found.");
         }
 
-        const newAccessToken = jwt.sign(
-            { userId, role: user.role },
-            config.JWT_SECRET,
-            { expiresIn: config.JWT_ACCESS_EXPIRY }
-        )
-
-        const newRefreshToken = jwt.sign(
-            { userId, tokenId: randomUUID() },
-            config.JWT_REFRESH_SECRET,
-            { expiresIn: config.JWT_REFRESH_EXPIRY }
-        )
-
-        const hashedRefreshToken = await bcrypt.hash(newRefreshToken, config.BCRYPT_SALT_ROUNDS);
-
-        const expiresAt = new Date(Date.now() + config.JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
-
-
-        await prisma.$transaction(async (tx) => {
-            await authRepository.revokeRefreshToken(matchedToken.id, tx);
-
-            await authRepository.createRefreshToken({
-                tokenHash: hashedRefreshToken,
-                userId,
-                expiresAt
-            }, tx);
-        });
-
         return {
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
         }
     }
 }

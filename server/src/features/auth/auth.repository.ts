@@ -26,11 +26,12 @@ class AuthRepository {
         });
     }
 
-    createRefreshToken = (data: { tokenHash: string, userId: string, expiresAt: Date }, tx?: TxClient): Promise<RefreshToken> => {
+    createRefreshToken = (data: { id: string, tokenHash: string, userId: string, expiresAt: Date }, tx?: TxClient): Promise<RefreshToken> => {
         const client = tx ?? prisma;
 
         return client.refreshToken.create({
             data: {
+                id: data.id,
                 tokenHash: data.tokenHash,
                 userId: data.userId,
                 expiresAt: data.expiresAt
@@ -38,10 +39,10 @@ class AuthRepository {
         });
     }
 
-    findRefreshTokensByUserId = (userId: string): Promise<RefreshToken[]> => {
-        return prisma.refreshToken.findMany({
+    findRefreshTokenById = (tokenId: string): Promise<RefreshToken | null> => {
+        return prisma.refreshToken.findUnique({
             where: {
-                userId
+                id: tokenId,
             }
         });
     }

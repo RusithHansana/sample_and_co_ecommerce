@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { handleValidationErrors, loginValidation, registerValidation } from "./auth.validation.js";
 import { authController } from "./auth.controller.js";
+import { authenticate } from "../../middleware/auth.ts";
 
 const router = Router();
 
@@ -10,5 +11,8 @@ router.post("/login", loginValidation, handleValidationErrors, authController.lo
 
 router.post("/refresh", authController.refresh);
 
+router.post("/logout", authController.logout);
+
+router.get("/me", authenticate, authController.me);
 
 export default router;

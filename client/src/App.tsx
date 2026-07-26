@@ -21,37 +21,60 @@ import ProductListPage from "@/pages/admin/product-list-page"
 import ProductFormPage from "@/pages/admin/product-form-page"
 import OrderListPage from "@/pages/admin/order-list-page"
 import AdminOrderDetailPage from "@/pages/admin/order-detail-page"
+import { AuthProvider } from "@/contexts/auth-context"
+import { GuestRoute } from "@/components/auth/guest-route"
+import { ProtectedRoute } from "@/components/auth/protected-routes"
+import ForbiddenPage from "@/pages/forbidden-page"
+import AdminRoute from "@/components/auth/admin-route"
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Storefront routes */}
-        <Route element={<StorefrontLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="products" element={<ProductListingPage />} />
-          <Route path="products/:id" element={<ProductDetailPage />} />
-          <Route path="cart" element={<CartPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="order-confirmation/:id" element={<OrderConfirmationPage />} />
-          <Route path="orders" element={<OrderHistoryPage />} />
-          <Route path="orders/:id" element={<OrderDetailPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
+      <AuthProvider>
 
-        {/* Admin routes */}
-        <Route path="admin" element={<AdminLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="products" element={<ProductListPage />} />
-          <Route path="products/new" element={<ProductFormPage />} />
-          <Route path="products/:id" element={<ProductFormPage />} />
-          <Route path="orders" element={<OrderListPage />} />
-          <Route path="orders/:id" element={<AdminOrderDetailPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+        <Routes>
+          {/* Storefront routes */}
+          <Route element={<StorefrontLayout />}>
+            {/* Public */}
+            <Route index element={<HomePage />} />
+            <Route path="products" element={<ProductListingPage />} />
+            <Route path="products/:id" element={<ProductDetailPage />} />
+
+            {/* Guest only */}
+            <Route element={<GuestRoute />}>
+              <Route path="login" element={<LoginPage />} />
+              <Route path="register" element={<RegisterPage />} />
+            </Route>
+
+            {/*  Protected */}
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="cart" element={<CartPage />} />
+              <Route path="checkout" element={<CheckoutPage />} />
+              <Route path="order-confirmation/:id" element={<OrderConfirmationPage />} />
+              <Route path="orders" element={<OrderHistoryPage />} />
+              <Route path="orders/:id" element={<OrderDetailPage />} />
+            </Route>
+
+            <Route path="forbidden" element={<ForbiddenPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+
+          {/* Admin routes */}
+          <Route element={<AdminRoute />}>
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="products" element={<ProductListPage />} />
+              <Route path="products/new" element={<ProductFormPage />} />
+              <Route path="products/:id" element={<ProductFormPage />} />
+              <Route path="orders" element={<OrderListPage />} />
+              <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Route>
+
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

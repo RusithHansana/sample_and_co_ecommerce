@@ -1,7 +1,6 @@
 import { useState, type SubmitEventHandler } from "react"
 import { Link, useNavigate } from "react-router";
-
-import api from "@/api/client";
+import { useAuth } from "@/hooks/use-auth";
 
 interface FormFieldErrors {
     email?: string;
@@ -11,9 +10,12 @@ interface FormFieldErrors {
 
 export default function RegisterPage() {
     const navigate = useNavigate();
+    const { register } = useAuth();
+
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+
     const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
     const [formError, setFormError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,14 +27,8 @@ export default function RegisterPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await api.post("/auth/register", { email, password, name });
-
-            if (response.status === 201) {
-                // Temporary in memory storage until auth context is added in story 2.4
-                const { accessToken } = response.data.data;
-                (window as any).__accessToken = accessToken;
-                navigate('/');
-            }
+            await register(email, password, name);
+            navigate('/');
         } catch (err: any) {
             const status = err.response?.status;
             const errorBody = err.response?.data?.error;
