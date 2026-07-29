@@ -12,7 +12,7 @@ _bmad-*
 .github
 
 # misc
-/docs
+/docs/misc
 
 # prisma generated files
 /server/src/generated/prisma
