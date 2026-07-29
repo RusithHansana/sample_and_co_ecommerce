@@ -170,3 +170,19 @@
   --spacing-gallery-gap: var(--gallery-gap);
   --spacing-section-gap: var(--section-gap);
 }
+
+body {
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-body);
+    letter-spacing: var(--letter-spacing-body);
+    line-height: var(--line-height-body);
+    color: var(--foreground);
+    background-color: var(--background);
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-heading);
+    letter-spacing: var(--letter-spacing-heading);
+    line-height: var(--line-height-heading);
+}
