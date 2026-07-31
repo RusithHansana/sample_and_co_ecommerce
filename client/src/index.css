@@ -114,7 +114,7 @@
   --secondary-foreground: #1A1A1A;
 
   --muted: #F0EDE8;
-  --muted-foreground: #8C8378;
+  --muted-foreground: #6E665D;
 
   --accent: #F0EDE8;
   --accent-foreground: #1A1A1A;
@@ -166,9 +166,15 @@
   --radius-xl: var(--radius-xl);
   --radius-full: var(--radius-full);
 
-  --spacing-gutter: var(--gutter);
-  --spacing-gallery-gap: var(--gallery-gap);
-  --spacing-section-gap: var(--section-gap);
+ --spacing-gutter: var(--gutter);
+ --spacing-gutter-md: var(--gutter-md);
+ --spacing-gutter-lg: var(--gutter-lg);
+ --spacing-gallery-gap: var(--gallery-gap);
+ --spacing-section-gap: var(--section-gap);
+ --spacing-page-margin-mobile: var(--page-margin-mobile);
+ --spacing-page-margin-tablet: var(--page-margin-tablet);
+ --spacing-page-margin-desktop: var(--page-margin-desktop);
+ --width-content-max: var(--content-max-width);
 }
 
 body {
