@@ -68,7 +68,7 @@ const brandConfig: BrandConfig = {
     colors: {
         background: "#0A0A0A",
         foreground: "#FAFAFA",
-        muted: "#6B7280",
+        muted: "#27272A",
         border: "#27272A",
         accent: "#3B82F6",
     },
@@ -97,11 +97,11 @@ export function getBrandName(): string {
 }
 
 export function getBrandColors(): BrandColors {
-    return brandConfig.colors;
+    return { ...brandConfig.colors };
 }
 
 export function getBrandTypography(): BrandTypography {
-    return brandConfig.typography;
+    return { ...brandConfig.typography };
 }
 
 export default brandConfig;

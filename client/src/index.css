@@ -170,7 +170,14 @@
  --spacing-gutter-md: var(--gutter-md);
  --spacing-gutter-lg: var(--gutter-lg);
  --spacing-gallery-gap: var(--gallery-gap);
- --spacing-section-gap: var(--section-gap);
+ --spacing-section-gap: var(--section--spacing-gutter-md: var(--gutter-md);
+--spacing-gutter-lg: var(--gutter-lg);
+--spacing-gallery-gap: var(--gallery-gap);
+--spacing-section-gap: var(--section-gap);
+--spacing-page-margin-mobile: var(--page-margin-mobile);
+--spacing-page-margin-tablet: var(--page-margin-tablet);
+--spacing-page-margin-desktop: var(--page-margin-desktop);
+-gap);
  --spacing-page-margin-mobile: var(--page-margin-mobile);
  --spacing-page-margin-tablet: var(--page-margin-tablet);
  --spacing-page-margin-desktop: var(--page-margin-desktop);
