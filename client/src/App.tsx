@@ -27,6 +27,8 @@ import { ProtectedRoute } from "@/components/auth/protected-routes"
 import ForbiddenPage from "@/pages/forbidden-page"
 import AdminRoute from "@/components/auth/admin-route"
 
+import { Toaster } from "@/components/ui/sonner"
+
 function App() {
   return (
     <BrowserRouter>
@@ -74,6 +76,7 @@ function App() {
           </Route>
 
         </Routes>
+        <Toaster />
       </AuthProvider>
     </BrowserRouter>
   )
