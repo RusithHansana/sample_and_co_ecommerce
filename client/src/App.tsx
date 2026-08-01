@@ -28,56 +28,59 @@ import ForbiddenPage from "@/pages/forbidden-page"
 import AdminRoute from "@/components/auth/admin-route"
 
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/contexts/theme-context"
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
 
-        <Routes>
-          {/* Storefront routes */}
-          <Route element={<StorefrontLayout />}>
-            {/* Public */}
-            <Route index element={<HomePage />} />
-            <Route path="products" element={<ProductListingPage />} />
-            <Route path="products/:id" element={<ProductDetailPage />} />
+          <Routes>
+            {/* Storefront routes */}
+            <Route element={<StorefrontLayout />}>
+              {/* Public */}
+              <Route index element={<HomePage />} />
+              <Route path="products" element={<ProductListingPage />} />
+              <Route path="products/:id" element={<ProductDetailPage />} />
 
-            {/* Guest only */}
-            <Route element={<GuestRoute />}>
-              <Route path="login" element={<LoginPage />} />
-              <Route path="register" element={<RegisterPage />} />
-            </Route>
+              {/* Guest only */}
+              <Route element={<GuestRoute />}>
+                <Route path="login" element={<LoginPage />} />
+                <Route path="register" element={<RegisterPage />} />
+              </Route>
 
-            {/*  Protected */}
+              {/*  Protected */}
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="cart" element={<CartPage />} />
-              <Route path="checkout" element={<CheckoutPage />} />
-              <Route path="order-confirmation/:id" element={<OrderConfirmationPage />} />
-              <Route path="orders" element={<OrderHistoryPage />} />
-              <Route path="orders/:id" element={<OrderDetailPage />} />
-            </Route>
+              <Route element={<ProtectedRoute />}>
+                <Route path="cart" element={<CartPage />} />
+                <Route path="checkout" element={<CheckoutPage />} />
+                <Route path="order-confirmation/:id" element={<OrderConfirmationPage />} />
+                <Route path="orders" element={<OrderHistoryPage />} />
+                <Route path="orders/:id" element={<OrderDetailPage />} />
+              </Route>
 
-            <Route path="forbidden" element={<ForbiddenPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
-
-          {/* Admin routes */}
-          <Route element={<AdminRoute />}>
-            <Route path="admin" element={<AdminLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="products" element={<ProductListPage />} />
-              <Route path="products/new" element={<ProductFormPage />} />
-              <Route path="products/:id" element={<ProductFormPage />} />
-              <Route path="orders" element={<OrderListPage />} />
-              <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+              <Route path="forbidden" element={<ForbiddenPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
-          </Route>
 
-        </Routes>
-        <Toaster />
-      </AuthProvider>
+            {/* Admin routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="admin" element={<AdminLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="products" element={<ProductListPage />} />
+                <Route path="products/new" element={<ProductFormPage />} />
+                <Route path="products/:id" element={<ProductFormPage />} />
+                <Route path="orders" element={<OrderListPage />} />
+                <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Route>
+
+          </Routes>
+          <Toaster />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }
