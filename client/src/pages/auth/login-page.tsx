@@ -1,6 +1,7 @@
 import { useState, type SubmitEventHandler } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 interface FormFieldErrors {
     email?: string;
@@ -84,9 +85,9 @@ export default function LoginPage() {
                         {fieldErrors.password && <p>{fieldErrors.password}</p>}
                     </div>
 
-                    <button type="submit" disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Signing in..." : "Sign in"}
-                    </button>
+                    </Button>
                 </form>
                 <p> Don't have an account <Link to='/register' > Create one</Link></p>
             </section>
