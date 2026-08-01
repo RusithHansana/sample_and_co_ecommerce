@@ -73,8 +73,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const value: ThemeContextType = {
-        theme: 'dark',
-        resolvedTheme: 'dark',
+        theme: themeState,
+        resolvedTheme: resolvedTheme,
         setTheme,
     }
     return (<ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>)
