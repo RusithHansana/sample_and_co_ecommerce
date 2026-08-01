@@ -8,7 +8,7 @@ export function useTheme(): ThemeContextType {
     if (!context) {
         throw new Error(
             "useTheme must be used within an <ThemeProvider>. " +
-            "Wrap your component tree with <Themerovider> in App.tsx.",
+            "Wrap your component tree with <ThemeProvider> in App.tsx.",
         );
     }
 
