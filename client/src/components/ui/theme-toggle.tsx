@@ -13,7 +13,7 @@ const NEXT_THEME: Record<Theme, Theme> = {
 const THEME_LABEL: Record<Theme, string> = {
     dark: 'Switch to light mode',
     light: 'Switch to system mode',
-    system: 'Switch to dark mo""de',
+    system: 'Switch to dark mode',
 };
 
 const ICON_CLASS = 'absolute inset-0 h-5 w-5 transition-all duration-200 ease-in-out motion-reduce:duration-0 motion-reduce:transition-none';
