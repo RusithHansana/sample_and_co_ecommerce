@@ -14,7 +14,14 @@ function getResolvedTheme(theme: Theme): ResolvedTheme {
 
 function getStoredTheme(): Theme {
     if (typeof window === 'undefined') return 'system';
-    const stored = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
+    let stored;
+
+    try {
+        stored = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
+    } catch (error) {
+        return 'system';
+    }
+
     return (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : 'system';
 }
 
@@ -56,6 +63,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         const handleChange = (e: StorageEvent) => {
             if (e.key !== LOCAL_STORAGE_THEME_KEY) return;
 
+            if (e.newValue === null) {
+                setThemeState('system');
+                return;
+            }
+
             const next = e.newValue;
 
             if (next === 'light' || next === 'dark' || next === 'system') {
@@ -68,7 +80,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const setTheme = useCallback((next: Theme) => {
-        localStorage.setItem(LOCAL_STORAGE_THEME_KEY, next);
+        try {
+            localStorage.setItem(LOCAL_STORAGE_THEME_KEY, next);
+        } catch (error) {
+            // Fall through — still update in-memory state so the toggle works
+        }
         setThemeState(next)
     }, []);
 
