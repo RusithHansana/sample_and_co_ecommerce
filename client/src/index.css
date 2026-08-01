@@ -199,3 +199,8 @@ h6 {
    letter-spacing: var(--letter-spacing-heading);
    line-height: var(--line-height-heading);
 }
+
+.no-transition,
+.no-transition * {
+   transition: none !important;
+}

@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/hooks/use-auth"
 import { Link } from "react-router";
 
@@ -9,6 +10,7 @@ export default function HomePage() {
     }
     return (
         <div>
+            <ThemeToggle />
             <h1>HomePage</h1>
             <p>Placeholder - to be implemented</p>
             <div>
