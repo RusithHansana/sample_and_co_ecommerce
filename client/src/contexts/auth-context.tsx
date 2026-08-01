@@ -1,9 +1,8 @@
-import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { type AuthUser, type AuthContextValue } from "@/types/auth";
 import { useNavigate } from "react-router";
 import api, { isAxiosError, refreshApi, setAuthCallbacks } from "@/api/client";
-
-export const AuthContext = createContext<AuthContextValue | null>(null);
+import { AuthContext } from "@/contexts/auth-context-store";
 
 async function fetchCurrentUser(): Promise<AuthUser> {
     const response = await api.get('/auth/me');
@@ -91,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const authenticatedUser = await fetchCurrentUser();
                     setAuthState(authenticatedUser, token);
                 }
-            } catch (error) {
+            } catch {
                 if (!abortController.signal.aborted) {
                     clearAuthState();
                 }
@@ -136,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         async () => {
             try {
                 await api.post('/auth/logout');
-            } catch (error) {
+            } catch {
 
             } finally {
                 clearAuthState();
