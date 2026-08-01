@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
 import { useTheme } from "@/hooks/use-theme"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils";
 import type { Theme } from "@/types/theme";
 import { Monitor, Moon, Sun } from "lucide-react";
