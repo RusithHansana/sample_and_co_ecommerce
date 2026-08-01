@@ -200,6 +200,7 @@ h6 {
    line-height: var(--line-height-heading);
 }
 
+.no-transition,
 .no-transition * {
    transition: none !important;
 }
