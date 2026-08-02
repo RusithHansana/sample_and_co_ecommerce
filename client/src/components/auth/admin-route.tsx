@@ -7,18 +7,18 @@ export default function AdminRoute() {
 
     if (isLoading) return null;
 
-    if (!isAuthenticated) {
-        return (
-            <Navigate
-                to={'/login'}
-                replace
-            />
-        );
-    }
+    // if (!isAuthenticated) {
+    //     return (
+    //         <Navigate
+    //             to={'/login'}
+    //             replace
+    //         />
+    //     );
+    // }
 
-    if (user?.role !== "ADMIN") {
-        return <ForbiddenPage />
-    }
+    // if (user?.role !== "ADMIN") {
+    //     return <ForbiddenPage />
+    // }
 
     return <Outlet />
 }

@@ -1,9 +1,10 @@
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { Outlet } from "react-router";
 
 export default function AdminLayout() {
     return (
         <div>
-            <aside>Sidebar Placeholder</aside>
+            <AdminSidebar onNavClick={() => { }} />
             <main>
                 <Outlet />
             </main>
