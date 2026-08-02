@@ -96,6 +96,10 @@ export function getBrandName(): string {
     return brandConfig.brandName;
 }
 
+export function getBrandTagline(): string {
+    return brandConfig.tagline;
+}
+
 export function getBrandColors(): BrandColors {
     return { ...brandConfig.colors };
 }
