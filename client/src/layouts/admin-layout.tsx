@@ -24,7 +24,7 @@ export default function AdminLayout() {
                     open={isMobileOpen}
                     onOpenChange={setIsMobileOpen}
                 >
-                    <SheetContent side="left" className="p-0 w-64">
+                    <SheetContent side="left" className="p-0 !w-64">
                         <AdminSidebar
                             onNavClick={() => setIsMobileOpen(false)}
                             isCollapsed={false}
