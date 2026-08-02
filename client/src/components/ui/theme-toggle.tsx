@@ -1,46 +1,58 @@
-import { useTheme } from "@/hooks/use-theme"
-import { Button } from "@/components/ui/button"
+import { useTheme } from "@/hooks/use-theme";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Theme } from "@/types/theme";
 import { Monitor, Moon, Sun } from "lucide-react";
 
 const NEXT_THEME: Record<Theme, Theme> = {
-    dark: 'light',
-    light: 'system',
-    system: 'dark',
+    dark: "light",
+    light: "system",
+    system: "dark",
 };
 
 const THEME_LABEL: Record<Theme, string> = {
-    dark: 'Switch to light mode',
-    light: 'Switch to system mode',
-    system: 'Switch to dark mode',
+    dark: "Switch to light mode",
+    light: "Switch to system mode",
+    system: "Switch to dark mode",
 };
 
-const ICON_CLASS = 'absolute inset-0 h-5 w-5 transition-all duration-200 ease-in-out motion-reduce:duration-0 motion-reduce:transition-none';
-
+const THEME_ICONS = [
+    { theme: "dark", Icon: Moon },
+    { theme: "light", Icon: Sun },
+    { theme: "system", Icon: Monitor },
+] as const;
 
 function ThemeToggle() {
     const { theme, setTheme } = useTheme();
 
-    return (<Button
-        variant="ghost"
-        size="icon"
-        className="h-11 w-11"
-        onClick={() => setTheme(NEXT_THEME[theme])}
-        aria-label={THEME_LABEL[theme]}
-    >
-        <span className="relative block h-5 w-5">
-            <Moon
-                className={cn(ICON_CLASS, theme === 'dark' ? 'rotate-0 opacity-100' : 'rotate-180 opacity-0')}
-            />
-            <Sun
-                className={cn(ICON_CLASS, theme === 'light' ? 'rotate-0 opacity-100' : 'rotate-180 opacity-0')}
-            />
-            <Monitor
-                className={cn(ICON_CLASS, theme === 'system' ? 'rotate-0 opacity-100' : 'rotate-180 opacity-0')}
-            />
-        </span>
-    </Button>)
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            className="h-11 w-11"
+            onClick={() => setTheme(NEXT_THEME[theme])}
+            aria-label={THEME_LABEL[theme]}
+        >
+            <span className="relative flex h-5 w-5 items-center justify-center">
+                {THEME_ICONS.map(({ theme: iconTheme, Icon }) => {
+                    const isActive = theme === iconTheme;
+
+                    return (
+                        <Icon
+                            key={iconTheme}
+                            className={cn(
+                                "absolute h-5 w-5 transition-all duration-300 ease-in-out motion-reduce:duration-0 motion-reduce:transition-none",
+                                isActive
+                                    ? "rotate-0 scale-100 opacity-100"
+                                    : "rotate-90 scale-0 opacity-0"
+                            )}
+                            aria-hidden="true"
+                        />
+                    );
+                })}
+            </span>
+        </Button>
+    );
 }
 
-export { ThemeToggle }
+export { ThemeToggle };
