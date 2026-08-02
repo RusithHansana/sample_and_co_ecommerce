@@ -9,7 +9,7 @@ import { UserMenu } from "@/components/layout/user-menu";
 interface NavbarProps {
     cartItemCount?: number;
 }
-export function Navbar({ cartItemCount = 2 }: NavbarProps) {
+export function Navbar({ cartItemCount = 0 }: NavbarProps) {
     return (
         <header className="sticky top-0 z-50 h-14 w-full border-b border-border bg-background/95 backdrop-blur-md">
             <nav
