@@ -10,7 +10,7 @@ export function RouteAnnouncer() {
         const pageTitle = getRouteTitle(location.pathname);
         setAnnouncement(pageTitle);
         document.title = pageTitle;
-    }, [location]);
+    }, [location.pathname]);
 
     return (
         <div
