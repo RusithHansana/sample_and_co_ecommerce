@@ -5,7 +5,7 @@ export function showSuccess(message: string) {
 }
 
 export function showError(message: string) {
-    toast.error(message, { duration: Infinity });
+    toast.error(message, { duration: 5000 });
 }
 
 export function showInfo(message: string) {
