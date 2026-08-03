@@ -3,32 +3,17 @@ import { Menu } from "lucide-react";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getBreadCrumbs } from "@/lib/breadcrumbs";
 
 interface AdminTopbarProps {
     onMenuToggle: () => void;
+    isMobileMenuExpanded: boolean;
 }
 
-export function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
+export function AdminTopbar({ onMenuToggle, isMobileMenuExpanded }: AdminTopbarProps) {
     const location = useLocation();
 
-    const getBreadCrumbs = () => {
-        const paths = location.pathname.split("/").filter(Boolean);
-
-        return paths
-            .map((path, i) => {
-                const url = `/${paths.slice(0, i + 1).join("/")}`;
-                const isLast = i === paths.length - 1;
-                const title = path.charAt(0).toUpperCase() + path.slice(1);
-
-                return {
-                    title,
-                    url,
-                    isLast
-                }
-            })
-    };
-
-    const breadcrumbs = getBreadCrumbs();
+    const breadcrumbs = getBreadCrumbs(location.pathname);
 
     return (
         <header className="sticky top-0 z-40 h-14 w-full border-b border-border bg-background/95 backdrop-blur-md px-4 flex items-center justify-between">
@@ -40,6 +25,7 @@ export function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
                     className="lg:hidden min-h-[44px] min-w-[44px]"
                     onClick={onMenuToggle}
                     aria-label="Toggle Admin Sidebar Navigation"
+                    aria-expanded={isMobileMenuExpanded}
                 >
                     <Menu className="h-5 w-5" />
                 </Button>
@@ -60,7 +46,7 @@ export function AdminTopbar({ onMenuToggle }: AdminTopbarProps) {
                             ) : (
                                 <Link
                                     to={crumb.url}
-                                    className="text-muted-foreground hover:text-forground"
+                                    className="text-muted-foreground hover:text-foreground"
                                 >
                                     {crumb.title}
                                 </Link>

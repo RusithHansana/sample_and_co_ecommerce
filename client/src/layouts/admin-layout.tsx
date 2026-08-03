@@ -34,7 +34,7 @@ export default function AdminLayout() {
             )}
 
             <div className="flex flex-1 flex-col overflow-hidden">
-                <AdminTopbar onMenuToggle={() => setIsMobileOpen(true)} />
+                <AdminTopbar onMenuToggle={() => setIsMobileOpen(true)} isMobileMenuExpanded={isMobileOpen} />
                 <main
                     id="main-content"
                     className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"

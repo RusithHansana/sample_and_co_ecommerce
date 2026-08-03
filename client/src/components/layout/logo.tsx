@@ -20,7 +20,7 @@ export function Logo({ className, showTagline = false }: LogoProps) {
                 &
             </span>
             <div className="flex flex-col">
-                <span className="font-heading font-bold text-sm tracking-[0.06em uppercase text-foreground">
+                <span className="font-heading font-bold text-sm tracking-[0.06em] uppercase text-foreground">
                     {brandName}
                 </span>
                 {
