@@ -13,7 +13,7 @@ export function useRouteChangeAnimation<T extends HTMLElement>(className: string
         element.classList.remove(className);
         void element.offsetWidth;
         element.classList.add(className);
-    }, [location.pathname])
+    }, [location.pathname, className])
 
     return ref;
 }
