@@ -19,7 +19,7 @@ export function Logo({ className, showTagline = false }: LogoProps) {
             <span className="flex items-center justify-center w-7 h-7 rounded-sm bg-primary text-primary-foreground font-heading font-bold text-base leading-none">
                 &
             </span>
-            <div className="flex flex-col">
+            <div className="hidden sm:flex flex-col">
                 <span className="font-heading font-bold text-sm tracking-[0.06em] uppercase text-foreground">
                     {brandName}
                 </span>
