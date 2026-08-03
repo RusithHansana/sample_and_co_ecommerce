@@ -29,10 +29,12 @@ import AdminRoute from "@/components/auth/admin-route"
 
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/contexts/theme-context"
+import { RouteAnnouncer } from "@/components/accessibility/route-announcer"
 
 function App() {
   return (
     <BrowserRouter>
+      <RouteAnnouncer />
       <ThemeProvider>
         <AuthProvider>
 
