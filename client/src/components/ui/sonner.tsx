@@ -1,14 +1,17 @@
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 import { useTheme } from "@/hooks/use-theme"
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { resolvedTheme } = useTheme()
+  const { resolvedTheme } = useTheme();
+  const isMobile = useMediaQuery('(max-width:768px)')
 
   return (
     <Sonner
       theme={resolvedTheme as ToasterProps["theme"]}
       className="toaster group"
+      position={isMobile ? "bottom-center" : "bottom-right"}
       icons={{
         success: (
           <CircleCheckIcon className="size-4" />
