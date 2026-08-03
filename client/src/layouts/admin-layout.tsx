@@ -2,13 +2,17 @@ import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 
 export default function AdminLayout() {
     const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
+
+    useEffect(() => {
+        if ((isDesktop || isTablet) && isMobileOpen) setIsMobileOpen(false)
+    }, [isDesktop, isTablet])
 
     return (
         <div className="flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
