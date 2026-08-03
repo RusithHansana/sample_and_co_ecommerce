@@ -12,7 +12,7 @@ export default function AdminLayout() {
     const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
 
     useEffect(() => {
-        if ((isDesktop || isTablet) && isMobileOpen) setIsMobileOpen(false)
+        if (isDesktop || isTablet) setIsMobileOpen(false)
     }, [isDesktop, isTablet])
 
     return (
