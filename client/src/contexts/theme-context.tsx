@@ -18,7 +18,7 @@ function getStoredTheme(): Theme {
 
     try {
         stored = localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
-    } catch (error) {
+    } catch {
         return 'system';
     }
 
@@ -82,7 +82,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const setTheme = useCallback((next: Theme) => {
         try {
             localStorage.setItem(LOCAL_STORAGE_THEME_KEY, next);
-        } catch (error) {
+        } catch {
             // Fall through — still update in-memory state so the toggle works
         }
         setThemeState(next)

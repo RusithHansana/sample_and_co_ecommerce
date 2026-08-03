@@ -2,16 +2,18 @@ import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useRouteChangeAnimation } from "@/hooks/use-route-change-animation";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 
 export default function AdminLayout() {
+    const pageTransitionRef = useRouteChangeAnimation<HTMLDivElement>("animate-content-fade-in");
     const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
 
     useEffect(() => {
-        if ((isDesktop || isTablet) && isMobileOpen) setIsMobileOpen(false)
+        if (isDesktop || isTablet) setIsMobileOpen(false)
     }, [isDesktop, isTablet])
 
     return (
@@ -43,7 +45,12 @@ export default function AdminLayout() {
                     id="main-content"
                     className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
                 >
-                    <Outlet />
+                    <div
+                        ref={pageTransitionRef}
+                        className="animate-content-fade-in h-full"
+                    >
+                        <Outlet />
+                    </div>
                 </main>
             </div>
         </div>

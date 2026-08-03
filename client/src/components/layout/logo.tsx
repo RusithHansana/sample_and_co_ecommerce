@@ -13,13 +13,13 @@ export function Logo({ className, showTagline = false }: LogoProps) {
     return (
         <Link
             to="/"
-            className={cn("inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm", className)}
+            className={cn("inline-flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm no-underline", className)}
             aria-label={`${brandName} | Home`}
         >
             <span className="flex items-center justify-center w-7 h-7 rounded-sm bg-primary text-primary-foreground font-heading font-bold text-base leading-none">
                 &
             </span>
-            <div className="flex flex-col">
+            <div className="hidden sm:flex flex-col">
                 <span className="font-heading font-bold text-sm tracking-[0.06em] uppercase text-foreground">
                     {brandName}
                 </span>

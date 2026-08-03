@@ -1,7 +1,10 @@
-import { Navbar } from "@/components/layout/storefront-navbar";
 import { Outlet } from "react-router";
+import { Navbar } from "@/components/layout/storefront-navbar";
+import { useRouteChangeAnimation } from "@/hooks/use-route-change-animation";
 
 export default function StorefrontLayout() {
+    const pageTransitionRef = useRouteChangeAnimation<HTMLDivElement>("animate-content-fade-in");
+
     return (
         <div className="flex min-h-screen flex-col bg-background text-foreground">
 
@@ -13,7 +16,12 @@ export default function StorefrontLayout() {
                 id="main-content"
                 className="flex-1 w-full min-h-[calc(100vh-3.5rem)] max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6"
             >
-                <Outlet />
+                <div
+                    ref={pageTransitionRef}
+                    className="animate-content-fade-in h-full"
+                >
+                    <Outlet />
+                </div>
             </main>
 
             <footer className="border-t border-border py-6 text-center font-bodt text-xs text-muted-foreground"
