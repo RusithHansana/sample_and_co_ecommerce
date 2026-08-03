@@ -204,3 +204,43 @@ h6 {
 .no-transition * {
    transition: none !important;
 }
+
+@keyframes content-fade-in {
+   from {
+      opacity: 0;
+   }
+
+   to {
+      opacity: 1;
+   }
+}
+
+.animate-content-fade-in {
+   animation: content-fade-in 200ms ease-out;
+}
+
+@media (hover:hover) {
+   a:not([class*="no-underline"]):hover {
+      text-decoration: underline;
+   }
+
+   [data-slot="table-row"]:hover {
+      background-color: color-mix(in oklch, var(--muted) 5%, transparent);
+   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+   *,
+   *::before,
+   *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+   }
+
+   [data-slot="skeleton"] {
+      animation: none !important;
+   }
+}
