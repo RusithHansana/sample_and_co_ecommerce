@@ -18,7 +18,7 @@ const ROUTE_TITLES: Record<string, string> = {
 
 const DYNAMIC_ROUTES: { pattern: RegExp; title: (id: string) => string }[] = [
     { pattern: /^\/products\/([^/]+)$/, title: (id) => `Product ${id} — Sample & Co.` },
-    { pattern: /^\/order-confirmation\/([^/]+)$/, title: (id) => `Order Confirmation — Sample & Co.` },
+    { pattern: /^\/order-confirmation\/([^/]+)$/, title: (id) => `Order ${id}Confirmation — Sample & Co.` },
     { pattern: /^\/orders\/([^/]+)$/, title: (id) => `Order ${id} — Sample & Co.` },
     { pattern: /^\/admin\/products\/([^/]+)$/, title: (id) => `Edit Product ${id} — Sample & Co.` },
     { pattern: /^\/admin\/orders\/([^/]+)$/, title: (id) => `Order ${id} — Sample & Co.` },
