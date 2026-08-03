@@ -51,6 +51,7 @@ export function Navbar({ cartItemCount = 0 }: NavbarProps) {
                             <Badge
                                 variant="default"
                                 className="absolute -top-1 -right-1 flex h-4 w-4 min-w-[16px] items-center justify-center rounded-full bg-primary p-0 font-body text-[10px] font-bold text-primary-foreground"
+                                aria-hidden
                             >
                                 {cartItemCount > 99 ? "99+" : cartItemCount}
                             </Badge>
