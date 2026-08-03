@@ -42,7 +42,7 @@ export function Navbar({ cartItemCount = 0 }: NavbarProps) {
                         to="/cart"
                         className={cn(
                             buttonVariants({ variant: "ghost", size: "icon" }),
-                            "relative min-h-[44px] min-w-[44px]"
+                            "min-h-[44px] min-w-[44px] no-underline"
                         )}
                         aria-label={`Shopping Cart with ${cartItemCount} items`}
                     >
