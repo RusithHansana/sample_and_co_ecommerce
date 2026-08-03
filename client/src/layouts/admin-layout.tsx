@@ -3,9 +3,10 @@ import { AdminTopbar } from "@/components/layout/admin-topbar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 
 export default function AdminLayout() {
+    const location = useLocation();
     const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
     const isDesktop = useMediaQuery('(min-width: 1024px)');
     const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
@@ -43,7 +44,12 @@ export default function AdminLayout() {
                     id="main-content"
                     className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
                 >
-                    <Outlet />
+                    <div
+                        key={location.key}
+                        className="animate-content-fade-in h-full"
+                    >
+                        <Outlet />
+                    </div>
                 </main>
             </div>
         </div>
