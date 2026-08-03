@@ -34,9 +34,9 @@ import { RouteAnnouncer } from "@/components/accessibility/route-announcer"
 function App() {
   return (
     <BrowserRouter>
-      <RouteAnnouncer />
       <ThemeProvider>
         <AuthProvider>
+          <RouteAnnouncer />
 
           <Routes>
             {/* Storefront routes */}
