@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LogOut, Package, Shield } from "lucide-react";
+import { getInitials } from "@/lib/utils";
 
 export function UserMenu() {
     const { user, isAuthenticated, logout } = useAuth();
@@ -23,18 +24,6 @@ export function UserMenu() {
         await logout();
         navigate("/");
     };
-
-    const getInitials = (name: string) => {
-        return name
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean)
-            .map((p) => p[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2);
-    };
-
 
     return (
         <DropdownMenu>
