@@ -8,6 +8,11 @@ const ROUTE_TITLES: Record<string, string> = {
 };
 
 export function getRouteTitle(pathname: string): string {
-    if (pathname.startsWith('/products/')) return 'Product Detail — Sample & Co.';
+    const productMatch = pathname.match(/^\/products\/([^/]+)(\/.*)?$/);
+    if (productMatch) {
+        const [, id, subpath] = productMatch;
+        if (subpath === '/reviews') return `Product ${id} Reviews — Sample & Co.`;
+        return `Product ${id} — Sample & Co.`;
+    }
     return ROUTE_TITLES[pathname] ?? 'Sample & Co.';
 }
