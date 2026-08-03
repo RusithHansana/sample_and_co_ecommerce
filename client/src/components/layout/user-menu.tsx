@@ -47,7 +47,7 @@ export function UserMenu() {
                         aria-label="User Account Name"
                     >
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground font-heading text-xs font-semibold">
-                            {getInitials(user.name)}
+                            {getInitials(user.name) ?? "U"}
                         </div>
                     </Button>
                 }

@@ -23,7 +23,7 @@ export function AdminSidebar({ onNavClick, isCollapsed = false }: AdminSidebarPr
             return location.pathname === href;
         }
 
-        return location.pathname.startsWith(href);
+        return location.pathname.startsWith(href + "/");
     }
 
     return (

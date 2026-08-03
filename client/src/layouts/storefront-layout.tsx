@@ -11,8 +11,7 @@ export default function StorefrontLayout() {
             {/* Main Content Area */}
             <main
                 id="main-content"
-                className="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6"
-                style={{ minHeight: 'calc(100vh - 3.5rem)' }}
+                className="flex-1 w-full min-h-[calc(100vh-3.5rem)] max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6"
             >
                 <Outlet />
             </main>

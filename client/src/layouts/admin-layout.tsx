@@ -11,7 +11,7 @@ export default function AdminLayout() {
     const isTablet = useMediaQuery('(min-width:768px) and (max-width:1023px)');
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+        <div className="flex h-[100dvh] w-full overflow-hidden bg-background text-foreground">
             {/* On Desktop */}
             {isDesktop && <AdminSidebar isCollapsed={false} />}
 
