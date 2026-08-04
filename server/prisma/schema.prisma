@@ -41,3 +41,37 @@ model RefreshToken {
 
   @@index([userId])
 }
+
+model Product {
+  id            String      @id @default(uuid()) @db.Uuid
+  name          String
+  description   String
+  images        String[]
+  category      String
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  variants      ProductVariant[]
+  // Future: reviews Reviews[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model ProductVariant {
+  id            String      @id @default(uuid()) @db.Uuid
+  productId     String      @db.Uuid
+  attributes    Json        @default("{}") // prisma requires valid json so we need to wrap with " "
+  price         Decimal     @db.Decimal(10, 2)
+  stock         Int         @default(0)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Future: cartItems CartItem[], orderItems orderItem[]
+
+  @@index([productId])
+  // GIN index for attributes; added via raw sql in migration
+}

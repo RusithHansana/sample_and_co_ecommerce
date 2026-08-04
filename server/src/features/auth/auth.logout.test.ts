@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
@@ -16,7 +16,7 @@ const { mockPrisma } = vi.hoisted(() => {
             },
             refreshToken: {
                 create: vi.fn(),
-                findMany: vi.fn(),
+                findUnique: vi.fn(),
                 update: vi.fn(),
                 updateMany: vi.fn(),
             },
@@ -32,7 +32,6 @@ vi.mock("../../lib/prisma.js", () => ({
 vi.mock("bcryptjs", () => ({
     default: {
         hash: vi.fn(),
-        compare: vi.fn(),
     },
 }));
 
@@ -41,7 +40,7 @@ vi.mock("bcryptjs", () => ({
 // ──────────────────────────────────────────────
 import app from "../../app.js";
 import { config } from "../../config/index.js";
-import bcrypt from "bcryptjs";
+
 
 // ──────────────────────────────────────────────
 // Helpers
@@ -101,11 +100,8 @@ describe("POST /api/auth/logout", () => {
                 isRevoked: false,
             });
 
-            // DB returns stored tokens for this user
-            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
-
-            // bcrypt.compare matches the presented token
-            (bcrypt.compare as Mock).mockResolvedValue(true);
+            // DB returns stored token by ID
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(storedToken);
 
             // Revocation succeeds
             mockPrisma.refreshToken.update.mockResolvedValue({
@@ -165,8 +161,7 @@ describe("POST /api/auth/logout", () => {
                 isRevoked: true,
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([revokedToken]);
-            (bcrypt.compare as Mock).mockResolvedValue(true);
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(revokedToken);
 
             const res = await request(app)
                 .post("/api/auth/logout")
@@ -185,11 +180,8 @@ describe("POST /api/auth/logout", () => {
                 tokenId: TEST_TOKEN_ID,
             });
 
-            // DB returns tokens but none match
-            mockPrisma.refreshToken.findMany.mockResolvedValue([
-                buildStoredToken({ userId: TEST_USER_ID }),
-            ]);
-            (bcrypt.compare as Mock).mockResolvedValue(false);
+            // findUnique returns null → no matching token
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
 
             const res = await request(app)
                 .post("/api/auth/logout")

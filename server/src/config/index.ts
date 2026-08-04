@@ -15,6 +15,9 @@ interface Config {
     BCRYPT_SALT_ROUNDS: number;
     PORT: number;
     NODE_ENV: "development" | "production" | "test";
+    ADMIN_SEED_EMAIL?: string;
+    ADMIN_SEED_PASSWORD?: string;
+    ADMIN_SEED_NAME?: string;
 }
 
 function getEnv(key: string): string {
@@ -66,6 +69,12 @@ function getNodeEnv(): Config["NODE_ENV"] {
     return value;
 }
 
+function getSeedAdminEnv(attribute: string) {
+    const key = `ADMIN_SEED_${attribute}`;
+
+    return process.env[key];
+}
+
 export const config: Config = {
     DATABASE_URL: getEnv("DATABASE_URL"),
     JWT_SECRET: getEnv("JWT_SECRET"),
@@ -81,4 +90,7 @@ export const config: Config = {
     BCRYPT_SALT_ROUNDS: 10,
     PORT: getPort(3000),
     NODE_ENV: getNodeEnv(),
+    ADMIN_SEED_EMAIL: getSeedAdminEnv("EMAIL"),
+    ADMIN_SEED_PASSWORD: getSeedAdminEnv("PASSWORD"),
+    ADMIN_SEED_NAME: getSeedAdminEnv("NAME"),
 }
