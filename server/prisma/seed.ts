@@ -99,12 +99,12 @@ const SEED_PRODUCTS = [
 ];
 
 async function main() {
-    const adminEmail = config.ADMIN_EMAIL;
-    const adminPassword = config.ADMIN_PASSWORD;
-    const adminName = config.ADMIN_NAME;
+    const adminEmail = config.ADMIN_SEED_EMAIL?.trim();
+    const adminPassword = config.ADMIN_SEED_PASSWORD?.trim();
+    const adminName = config.ADMIN_SEED_NAME?.trim();
 
     if (!adminName || !adminEmail || !adminPassword) {
-        logger.warn("Skipping admin seed: ADMIN_EMAIL, ADMIN_PASSWORD, or ADMIN_NAME is not set.")
+        logger.warn("Skipping admin seed: ADMIN_EMAIL, ADMIN_PASSWORD, or ADMIN_NAME is not set.");
     } else {
         const hashedPassword = await bcrypt.hash(adminPassword, config.BCRYPT_SALT_ROUNDS);
 
@@ -127,7 +127,7 @@ async function main() {
     }
 
     for (const seedProduct of SEED_PRODUCTS) {
-        const { variants, ...productFiels } = seedProduct;
+        const { variants, ...productFields } = seedProduct;
 
         const existingProduct = await prisma.product.findFirst({
             where: {
@@ -139,13 +139,14 @@ async function main() {
             await prisma.product.update({
                 where: { id: existingProduct.id },
                 data: {
-                    description: productFiels.description,
-                    images: productFiels.images,
-                    category: productFiels.category,
+                    description: productFields.description,
+                    images: productFields.images,
+                    category: productFields.category,
+                    isActive: true,
                 }
             })
             : await prisma.product.create({
-                data: { ...productFiels }
+                data: { ...productFields }
             });
 
         for (const variantData of variants) {
@@ -164,6 +165,7 @@ async function main() {
                     data: {
                         price: variantData.price,
                         stock: variantData.stock,
+                        isActive: true,
                     },
                 });
             } else {
