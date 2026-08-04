@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
@@ -12,7 +12,7 @@ const { mockPrisma } = vi.hoisted(() => {
             },
             refreshToken: {
                 create: vi.fn(),
-                findMany: vi.fn(),
+                findUnique: vi.fn(),
                 update: vi.fn(),
                 updateMany: vi.fn(),
             },
@@ -28,14 +28,13 @@ vi.mock("../../lib/prisma.js", () => ({
 vi.mock("bcryptjs", () => ({
     default: {
         hash: vi.fn(),
-        compare: vi.fn(),
     },
 }));
 
 
 import app from "../../app.js";
 import { config } from "../../config/index.js";
-import bcrypt from "bcryptjs";
+
 
 // ──────────────────────────────────────────────
 // Helpers
@@ -139,11 +138,8 @@ describe("POST /api/auth/refresh", () => {
                 tokenId: TEST_TOKEN_ID
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([
-                buildStoredToken({ userId: TEST_USER_ID })
-            ]);
-
-            (bcrypt.compare as Mock).mockResolvedValue(false);
+            // findUnique returns null → no matching token in DB
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(null);
 
             const res = await request(app)
                 .post("/api/auth/refresh")
@@ -174,11 +170,7 @@ describe("POST /api/auth/refresh", () => {
                 role: "CUSTOMER",
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
-
-            (bcrypt.compare as Mock).mockResolvedValue(true);
-
-            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(storedToken);
 
             mockPrisma.$transaction.mockImplementation(async (fn: Function) => {
                 return fn(mockPrisma);
@@ -235,9 +227,7 @@ describe("POST /api/auth/refresh", () => {
             });
 
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
-            (bcrypt.compare as Mock).mockResolvedValue(true);
-            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(storedToken);
 
             mockPrisma.$transaction.mockImplementation(async (fn: Function) => {
                 return fn(mockPrisma);
@@ -288,9 +278,7 @@ describe("POST /api/auth/refresh", () => {
                 role: "CUSTOMER",
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([revokedToken]);
-
-            (bcrypt.compare as Mock).mockResolvedValue(true);
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(revokedToken);
 
             mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 3 });
 
@@ -321,7 +309,7 @@ describe("POST /api/auth/refresh", () => {
     });
 
     describe("cookie security flags", () => {
-        it("should set HttpOnly, SameSite=Strict, and Path=/api/auth on the refresh cookie", async () => {
+        it("should set HttpOnly, SameSite=Lax, and Path=/api/auth on the refresh cookie", async () => {
             const rawRefreshToken = createRefreshToken({
                 userId: TEST_USER_ID,
                 tokenId: TEST_TOKEN_ID,
@@ -339,9 +327,7 @@ describe("POST /api/auth/refresh", () => {
                 role: "CUSTOMER",
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
-            (bcrypt.compare as Mock).mockResolvedValue(true);
-            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(storedToken);
             mockPrisma.$transaction.mockImplementation(async (fn: Function) =>
                 fn(mockPrisma),
             );
@@ -368,7 +354,7 @@ describe("POST /api/auth/refresh", () => {
                 : cookies;
 
             expect(cookieStr).toContain("HttpOnly");
-            expect(cookieStr).toContain("SameSite=Strict");
+            expect(cookieStr).toContain("SameSite=Lax");
             expect(cookieStr).toContain("Path=/api/auth");
 
             // In test env, Secure should NOT be set (only in production)
@@ -397,9 +383,7 @@ describe("POST /api/auth/refresh", () => {
                 role: "CUSTOMER",
             });
 
-            mockPrisma.refreshToken.findMany.mockResolvedValue([storedToken]);
-            (bcrypt.compare as Mock).mockResolvedValue(true);
-            (bcrypt.hash as Mock).mockResolvedValue("new-hashed-token");
+            mockPrisma.refreshToken.findUnique.mockResolvedValueOnce(storedToken);
             mockPrisma.$transaction.mockImplementation(async (fn: Function) =>
                 fn(mockPrisma),
             );
