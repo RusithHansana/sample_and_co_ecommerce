@@ -2,7 +2,7 @@ import type { Prisma } from "../../generated/prisma/client.js";
 import prisma from "../../lib/prisma.js";
 import type { PaginationParams, ProductFilters } from "../../types/product.js";
 
-class ProductRepository {
+class ProductsRepository {
     private buildWhereClause = (filters: ProductFilters, attributeMatchedIds?: string[]): Prisma.ProductWhereInput => {
         const where: Prisma.ProductWhereInput = {
             isActive: true,
@@ -93,4 +93,4 @@ class ProductRepository {
     }
 }
 
-export const productRepository = new ProductRepository();
+export const productsRepository = new ProductsRepository();
