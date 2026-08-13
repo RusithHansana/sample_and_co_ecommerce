@@ -1,6 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
-import { body, validationResult } from "express-validator";
-import { ValidationError } from "../../types/app-error.js";
+import { body } from "express-validator";
 
 export const registerValidation = [
     body("email").isEmail().withMessage("Valid email is required.").normalizeEmail(),
@@ -11,17 +9,4 @@ export const registerValidation = [
 export const loginValidation = [
     body("email").isEmail().withMessage("Valid email is required.").normalizeEmail(),
     body("password").notEmpty().withMessage("Password is required.")
-]
-
-export function handleValidationErrors(req: Request, res: Response, next: NextFunction) {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        throw new ValidationError(
-            "Validation failed",
-            errors.array().map(e => ({ field: e.type === 'field' ? e.path : "unknown", message: e.msg }))
-        );
-    }
-
-    next();
-}
+];
