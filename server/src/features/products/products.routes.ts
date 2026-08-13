@@ -5,6 +5,6 @@ import { productsController } from "./products.controller.js";
 
 const router = Router();
 
-router.get("/list", listProductsValidation, handleValidationErrors, productsController.list);
+router.get("/", listProductsValidation, handleValidationErrors, productsController.list);
 
 export default router;
