@@ -1,5 +1,4 @@
 import { query, type ValidationChain } from "express-validator";
-import { AppError } from "../../types/app-error.ts";
 
 function attributeValidator(value: any): boolean {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
