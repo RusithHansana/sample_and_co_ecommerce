@@ -21,6 +21,8 @@ const app: Express = express();
 
 // for getting the actual ip coming from "X-Forwarded-For" when using a reverse proxy.
 app.set("trust proxy", 1);
+// Setting query parser extended for attribute parsing
+app.set("query parser", "extended");
 
 app.use(requestLogger);
 app.use(helmet());
