@@ -24,7 +24,12 @@ function attributeSanitizer(value: any): Record<string, string> {
     const sanitized: Record<string, string> = {};
 
     for (const [key, val] of Object.entries(value)) {
-        sanitized[key.trim()] = String(val).trim();
+        const trimmedKey = key.trim();
+        // Skip prototype pollution vectors
+        if (trimmedKey === "__proto__" || trimmedKey === "constructor" || trimmedKey === "prototype") {
+            continue;
+        }
+        sanitized[trimmedKey] = String(val).trim();
     }
 
     return sanitized;
