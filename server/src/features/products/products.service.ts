@@ -1,4 +1,3 @@
-import { param } from "express-validator";
 import type { Prisma, Product, ProductVariant } from "../../generated/prisma/client.js";
 import type { ListProductParams, PaginationParams, ProductFilters, ProductListItemDTO } from "../../types/product.ts";
 import { productsRepository } from "./products.repository.ts";
