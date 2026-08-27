@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 
 import { config } from "./config/index.js";
@@ -8,18 +9,20 @@ import { requestLogger } from "./middleware/request-logger.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { notFoundHandler } from "./middleware/not-found-handler.js";
 import { limiter } from "./middleware/rate-limiter.js";
+import { authenticate, requireRole } from "./middleware/auth.js";
 import { ForbiddenError } from "./types/app-error.js";
 
 import type { ApiSuccessResponse } from "./types/api-response.js";
 
 import authRouter from "./features/auth/auth.routes.js";
-import cookieParser from "cookie-parser";
-import { authenticate, requireRole } from "./middleware/auth.js";
+import productsRouter from "./features/products/products.routes.js";
 
 const app: Express = express();
 
 // for getting the actual ip coming from "X-Forwarded-For" when using a reverse proxy.
 app.set("trust proxy", 1);
+// Setting query parser extended for attribute parsing
+app.set("query parser", "extended");
 
 app.use(requestLogger);
 app.use(helmet());
@@ -45,7 +48,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 });
 
 app.use("/api/auth", limiter, authRouter);
-app.use("/api/products", express.Router());
+app.use("/api/products", productsRouter);
 app.use("/api/cart", express.Router());
 app.use("/api/checkout", express.Router());
 app.use("/api/orders", express.Router());
