@@ -8,10 +8,7 @@ export function sendSuccessResponse<T>(
     pagination?: ApiSuccessResponse<T>["pagination"]
 ) {
     const response: ApiSuccessResponse<T> = {
-        data,
-        ...(pagination && { pagination }
-
-        )
+        data, ...(pagination && { pagination })
     };
 
     res.status(status).json(response)
