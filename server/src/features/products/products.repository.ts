@@ -1,4 +1,4 @@
-import type { Prisma } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client.js";
 import prisma from "../../lib/prisma.js";
 import type { PaginationParams, ProductFilters } from "../../types/product.js";
 
@@ -41,15 +41,17 @@ class ProductsRepository {
     findProductIdsByAttributes = async (attributes: Record<string, string>): Promise<string[]> => {
         const jsonValue = JSON.stringify(attributes);
 
-        const results = await prisma.$queryRaw<{ id: string }[]>`
-            SELECT DISTINCT p.id
-            FROM "Product" p
-            JOIN "ProductVariant" pv ON pv."productId" = p.id
-            WHERE p."isActive" = true
-             AND pv."isActive" = true
-             AND pv.stock > 0
-             AND pv.attributes @> ${jsonValue}::jsonb
-        `;
+        const results = await prisma.$queryRaw<{ id: string }[]>(
+            Prisma.sql`
+                SELECT DISTINCT p.id
+                FROM "Product" p
+                JOIN "ProductVariant" pv ON pv."productId" = p.id
+                WHERE p."isActive" = true
+                 AND pv."isActive" = true
+                 AND pv.stock > 0
+                 AND pv.attributes @> CAST(${jsonValue} AS jsonb)
+            `
+        );
 
         return results.map((r) => r.id);
     }

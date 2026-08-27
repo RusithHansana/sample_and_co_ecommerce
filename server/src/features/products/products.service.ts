@@ -34,7 +34,7 @@ class ProductsService {
     }
 
     listProducts = async (params: ListProductParams) => {
-        const page = params.page ?? 1;
+        const page = Number(params.page ?? 1);
         const pageSize = Math.min(params.pageSize ?? 12, 50);
 
         const filters: ProductFilters = {};
