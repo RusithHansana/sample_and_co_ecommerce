@@ -10,7 +10,7 @@ function attributeValidator(value: any): boolean {
             throw new Error("Attribute keys must be valid non-empty strings");
         }
 
-        if (typeof val !== "string" || key.trim() === "") {
+        if (typeof val !== "string" || val.trim() === "") {
             throw new Error("Attribute values must be valid non-empty strings");
         }
     }
@@ -38,14 +38,14 @@ export const listProductsValidation: ValidationChain[] = [
 
     query("pageSize")
         .optional()
-        .isInt({ min: 1, max: 50 }).withMessage("Page size must be 1 and 50")
+        .isInt({ min: 1, max: 50 }).withMessage("Page size must be between 1 and 50")
         .toInt(),
 
     query("search")
         .optional()
         .isString().withMessage("Search must be a string")
-        .trim()
-        .escape(),
+        .isLength({ max: 200 }).withMessage("Search query cannot exceed 200 characters")
+        .trim(),
 
     query("category")
         .optional()
