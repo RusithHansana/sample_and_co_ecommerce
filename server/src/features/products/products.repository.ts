@@ -77,7 +77,6 @@ class ProductsRepository {
                     variants: {
                         where: {
                             isActive: true,
-                            stock: { gt: 0 }
                         },
                         select: {
                             price: true

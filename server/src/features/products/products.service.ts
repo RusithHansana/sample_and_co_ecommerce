@@ -1,6 +1,6 @@
 import type { Prisma, Product, ProductVariant } from "../../generated/prisma/client.js";
-import type { ListProductParams, PaginationParams, ProductFilters, ProductListItemDTO } from "../../types/product.ts";
-import { productsRepository } from "./products.repository.ts";
+import type { ListProductParams, PaginationParams, ProductFilters, ProductListItemDTO } from "../../types/product.js";
+import { productsRepository } from "./products.repository.js";
 
 type ProductWithVariants = Product & {
     variants: Pick<ProductVariant, "price">[];
@@ -34,8 +34,8 @@ class ProductsService {
     }
 
     listProducts = async (params: ListProductParams) => {
-        const page = Number(params.page ?? 1);
-        const pageSize = Math.min(params.pageSize ?? 12, 50);
+        const page = Math.max(1, Number(params.page) || 1);
+        const pageSize = Math.min(Math.max(1, Number(params.pageSize) || 12), 50);
 
         const filters: ProductFilters = {};
 

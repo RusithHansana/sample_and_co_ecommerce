@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { ApiSuccessResponse } from "../types/api-response.ts";
+import type { ApiSuccessResponse } from "../types/api-response.js";
 
 export function sendSuccessResponse<T>(
     res: Response,
@@ -8,10 +8,7 @@ export function sendSuccessResponse<T>(
     pagination?: ApiSuccessResponse<T>["pagination"]
 ) {
     const response: ApiSuccessResponse<T> = {
-        data,
-        ...(pagination && { pagination }
-
-        )
+        data, ...(pagination && { pagination })
     };
 
     res.status(status).json(response)
