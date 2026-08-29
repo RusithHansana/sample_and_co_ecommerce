@@ -93,7 +93,7 @@ class ProductsRepository {
 
     }
 
-    findProductById = async (id: string) => {
+    findProductById = (id: string) => {
         return prisma.product.findUnique({
             where: { id },
             include: {

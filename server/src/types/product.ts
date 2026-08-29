@@ -40,7 +40,7 @@ export interface ProductVariantDetailDTO {
 export interface ProductDetailDTO {
     id: string;
     name: string;
-    descritpion: string;
+    description: string;
     images: string[];
     category: string,
     variants: ProductVariantDetailDTO[];
