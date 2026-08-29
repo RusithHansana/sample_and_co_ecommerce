@@ -24,6 +24,14 @@ class ProductsController {
 
         sendSuccessResponse(res, result.data, 200, result.pagination);
     }
+
+    getById = async (req: Request, res: Response) => {
+        const { id } = req.params as { id: string };
+
+        const result = await productsService.getProductById(id);
+
+        sendSuccessResponse(res, result, 200);
+    }
 }
 
 export const productsController = new ProductsController();

@@ -92,6 +92,18 @@ class ProductsRepository {
         return { products, total }
 
     }
+
+    findProductById = (id: string) => {
+        return prisma.product.findUnique({
+            where: { id },
+            include: {
+                variants: {
+                    where: { isActive: true },
+                    orderBy: { createdAt: "asc" },
+                }
+            }
+        });
+    }
 }
 
 export const productsRepository = new ProductsRepository();

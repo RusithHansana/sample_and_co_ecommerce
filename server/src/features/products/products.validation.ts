@@ -1,4 +1,4 @@
-import { query, type ValidationChain } from "express-validator";
+import { param, query, type ValidationChain } from "express-validator";
 
 function attributeValidator(value: any): boolean {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
@@ -61,4 +61,10 @@ export const listProductsValidation: ValidationChain[] = [
         .optional()
         .custom((value) => attributeValidator(value))
         .customSanitizer((value) => attributeSanitizer(value))
-]
+];
+
+export const getProductDetailsIdValidation: ValidationChain[] = [
+    param("id")
+        .isUUID()
+        .withMessage("Product ID must be a valid UUID")
+];

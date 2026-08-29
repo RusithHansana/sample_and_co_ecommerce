@@ -1,10 +1,15 @@
 import type { Prisma, Product, ProductVariant } from "../../generated/prisma/client.js";
-import type { ListProductParams, PaginationParams, ProductFilters, ProductListItemDTO } from "../../types/product.js";
+import { NotFoundError } from "../../types/app-error.js";
+import type { ListProductParams, PaginationParams, ProductDetailDTO, ProductFilters, ProductListItemDTO } from "../../types/product.js";
 import { productsRepository } from "./products.repository.js";
 
 type ProductWithVariants = Product & {
     variants: Pick<ProductVariant, "price">[];
 };
+
+type ProductWithAllVariants = Product & {
+    variants: ProductVariant[];
+}
 
 class ProductsService {
     private calculatePriceRange = (variants: { price: Prisma.Decimal }[]): { min: number, max: number } => {
@@ -31,6 +36,26 @@ class ProductsService {
             averageRating: 0, // TODO - EPIC 8
             reviewCount: 0, // TODO - EPIC 8
         }
+    }
+
+    private toProductDetailDTO = (product: ProductWithAllVariants): ProductDetailDTO => {
+        return {
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            images: Array.isArray(product.images) ? product.images : [],
+            category: product.category,
+            variants: product.variants.map((v) => ({
+                id: v.id,
+                attributes: (typeof v.attributes === "object" && v.attributes !== null && !Array.isArray(v.attributes))
+                    ? v.attributes as Record<string, string>
+                    : {},
+                price: Number(v.price),
+                stockStatus: v.stock > 0 ? "In Stock" : "Out of Stock",
+            })),
+            averageRating: null,  // TODO - EPIC 8: SQL AVG() on Review table
+            reviewCount: 0,       // TODO - EPIC 8: SQL COUNT() on Review table
+        };
     }
 
     listProducts = async (params: ListProductParams) => {
@@ -65,6 +90,16 @@ class ProductsService {
                 total
             }
         };
+    }
+
+    getProductById = async (id: string) => {
+        const product = await productsRepository.findProductById(id);
+
+        if (!product || !product.isActive) {
+            throw new NotFoundError("Product not Found");
+        }
+
+        return this.toProductDetailDTO(product);
     }
 }
 
