@@ -20,8 +20,8 @@ export interface ListProductParams {
 export interface ProductListItemDTO {
     id: string;
     name: string;
-    primaryImage: string,
-    category: string,
+    primaryImage: string;
+    category: string;
     priceRange: {
         min: number,
         max: number,

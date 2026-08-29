@@ -63,7 +63,7 @@ export const listProductsValidation: ValidationChain[] = [
         .customSanitizer((value) => attributeSanitizer(value))
 ];
 
-export const productDetailsIdValidation: ValidationChain[] = [
+export const getProductDetailsIdValidation: ValidationChain[] = [
     param("id")
         .isUUID()
         .withMessage("Product ID must be a valid UUID")

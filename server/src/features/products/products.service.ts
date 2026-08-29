@@ -38,7 +38,7 @@ class ProductsService {
         }
     }
 
-    private toProdcutDetailDTO = (product: ProductWithAllVariants): ProductDetailDTO => {
+    private toProductDetailDTO = (product: ProductWithAllVariants): ProductDetailDTO => {
         return {
             id: product.id,
             name: product.name,
@@ -94,10 +94,10 @@ class ProductsService {
         const product = await productsRepository.findProductById(id);
 
         if (!product || !product.isActive) {
-            throw new NotFoundError("Product Not Found");
+            throw new NotFoundError("Product not Found");
         }
 
-        return this.toProdcutDetailDTO(product);
+        return this.toProductDetailDTO(product);
     }
 }
 
