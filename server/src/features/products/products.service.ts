@@ -43,11 +43,13 @@ class ProductsService {
             id: product.id,
             name: product.name,
             description: product.description,
-            images: product.images,
+            images: Array.isArray(product.images) ? product.images : [],
             category: product.category,
             variants: product.variants.map((v) => ({
                 id: v.id,
-                attributes: v.attributes as Record<string, string>,
+                attributes: (typeof v.attributes === "object" && v.attributes !== null && !Array.isArray(v.attributes))
+                    ? v.attributes as Record<string, string>
+                    : {},
                 price: Number(v.price),
                 stockStatus: v.stock > 0 ? "In Stock" : "Out of Stock",
             })),
